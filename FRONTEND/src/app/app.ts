@@ -1,23 +1,25 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet
+  ],
   template: `
-    <div class="card bg-red-500 flex justify-center">
-      <p-button label="label"></p-button>
-      <i class="pi pi-check"></i>
-      <i class="pi pi-times"></i>
-      <span class="pi pi-search"></span>
-      <span class="pi pi-user"></span>
-  </div>
-
     <router-outlet />
   `,
-  styles: [],
+  styles: `
+    :host {
+      display: block;
+      width: 100vw;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+  `
 })
 export class App {
-  protected title = 'Frontend';
 }
