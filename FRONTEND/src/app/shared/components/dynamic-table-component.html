@@ -1,0 +1,137 @@
+<p-card>
+  <ng-template pTemplate="header">
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <h2 class="text-xl font-bold m-0">{{ tableTitle() }}</h2>
+      </div>
+
+      <div class="p-toolbar-group-end flex items-center gap-2">
+        @if (showGlobalFilter()) {
+          <app-search-bar (search)="dt.filterGlobal($event, 'contains')" placeholder="Search..."></app-search-bar>
+        }
+        @if (showColumnSelect()) {
+          <p-multiSelect
+            [options]="columns()"
+            [(ngModel)]="visibleColumns"
+            optionLabel="header"
+            placeholder="Columns"
+            display="chip"
+            styleClass="min-w-48"
+            pTooltip="Select columns to display"
+            tooltipPosition="bottom"
+          ></p-multiSelect>
+        }
+      </div>
+    </p-toolbar>
+  </ng-template>
+
+  <p-table
+    #dt
+    [value]="data()"
+    [paginator]="clientSidePaginator()"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-striped p-datatable-gridlines"
+    [globalFilterFields]="globalFilterFields()"
+    [selectionMode]="selectionMode()"
+    [(selection)]="selectedItems"
+    [responsiveLayout]="'scroll'"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        @if (selectionMode() === 'multiple') {
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+        }
+        @for (col of visibleColumns(); track col.field) {
+          <th [pSortableColumn]="col.sortable !== false ? col.field : ''" class="p-2">
+            {{ col.header }}
+            @if(col.sortable !== false) {
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+            }
+          </th>
+        }
+        @if (showActions()) {
+          <th class="text-center p-2" style="width: 8rem;">Actions</th>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+      <tr [pSelectableRow]="rowData">
+        @if (selectionMode() === 'multiple') {
+          <td>
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+        }
+        @for (col of visibleColumns(); track col.field) {
+          <td class="p-2">
+            @switch (col.type) {
+              @case ('image') {
+                <img
+                  [src]="rowData[col.field]"
+                  [alt]="col.header"
+                  class="w-12 h-12 rounded-md object-cover"
+                  onError="this.src='https://placehold.co/50x50/EFEFEF/AAAAAA?text=Img'"
+                />
+              }
+              @case ('rating') {
+                <p-rating [ngModel]="rowData[col.field]" [readonly]="true"></p-rating>
+              }
+              @case ('progress') {
+                <p-progressBar [value]="rowData[col.field]"></p-progressBar>
+              }
+              @case ('status') {
+                <p-tag
+                  [value]="col.statusConfig?.map?.[rowData[col.field]]?.text || rowData[col.field]"
+                  [severity]="getSeverityForStatus(rowData[col.field])"
+                  [rounded]="true"
+                ></p-tag>
+              }
+              @case ('size') {
+                <span>{{ formatSize(rowData[col.field]) }}</span>
+              }
+              @default {
+                <span>{{ rowData[col.field] }}</span>
+              }
+            }
+          </td>
+        }
+        @if (showActions()) {
+          <td class="text-center">
+            <div class="flex items-center justify-center gap-1">
+              <p-button
+                icon="pi pi-pencil"
+                styleClass="p-button-rounded p-button-text p-button-info"
+                (click)="onEdit.emit(rowData)"
+                pTooltip="Edit"
+                tooltipPosition="top"
+              ></p-button>
+              <p-button
+                icon="pi pi-trash"
+                styleClass="p-button-rounded p-button-text p-button-danger"
+                (click)="onDelete.emit(rowData)"
+                pTooltip="Delete"
+                tooltipPosition="top"
+              ></p-button>
+            </div>
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="visibleColumns().length + (showActions() ? 1 : 0) + (selectionMode() === 'multiple' ? 1 : 0)">
+          <div class="flex flex-col items-center justify-center p-8 text-cente rounded-b-lg">
+            <i class="pi pi-table text-5xl text-gray-400 mb-4"></i>
+            <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">No data to display</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Try changing your filters or adding new items.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

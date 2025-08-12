@@ -21,13 +21,13 @@ interface MenuItem {
   template: `
     <!-- Main sidebar with direct hexadecimal colors. -->
     <aside [class.w-64]="sidebarOpen()" [class.w-24]="!sidebarOpen()"
-           class="transition-all duration-300 hidden md:flex flex-col bg-[#1F2937] text-[#E5E7EB] p-6 shadow-xl rounded-2xl my-4 h-[calc(100vh-2rem)]">
+           class="transition-all duration-250 custome-border hidden md:flex flex-col bg-theme text-color p-6 shadow-xl rounded-2xl my-4 h-[calc(100vh-2rem)]">
 
-      <h2 class="text-2xl font-bold mb-8 text-[#60A5FA] text-center flex-shrink-0">
+      <h2 class="text-2xl font-bold mb-8 text-primary text-center flex-shrink-0">
         @if(sidebarOpen()){
           Admin Dashboard
         } @else {
-          <i class="pi pi-shield text-4xl text-[#60A5FA]"></i>
+          <i class="pi pi-shield text-4xl text-primary"></i>
         }
       </h2>
 
@@ -36,21 +36,21 @@ interface MenuItem {
           @for (item of menuItems; track item.label) {
             <li class="mb-2">
               @if (!item.children) {
-                <a [routerLink]="item.link" routerLinkActive="bg-[#2563EB] text-white"
-                   class="flex items-center py-3 px-4 text-lg font-medium rounded-lg hover:bg-[#4B5563]/50 transition-colors duration-200 ease-in-out group">
-                  <i class="{{item.icon}} mr-3 text-[#D1D5DB] group-hover:text-[#BFDBFE] transition-colors duration-200"></i>
+                <a [routerLink]="item.link" routerLinkActive="bg-primary text-primary-color-text"
+                   class="flex items-center py-3 px-4 text-lg font-medium rounded-lg hover:bg-surface-hover transition-colors duration-200 ease-in-out group">
+                  <i class="{{item.icon}} mr-3 text-color-secondary group-hover:text-primary transition-colors duration-200"></i>
                   @if(sidebarOpen()){
                     <span>{{item.label}}</span>
                   }
                 </a>
               } @else {
                 <div (click)="toggleDropdown(item)"
-                     class="flex items-center py-3 px-4 text-lg font-medium rounded-lg hover:bg-[#4B5563]/50 transition-colors duration-200 ease-in-out cursor-pointer group">
-                  <i class="{{item.icon}} mr-3 text-[#D1D5DB] group-hover:text-[#BFDBFE] transition-colors duration-200"></i>
+                     class="flex items-center py-3 px-4 text-lg font-medium rounded-lg hover:bg-surface-hover transition-colors duration-200 ease-in-out cursor-pointer group">
+                  <i class="{{item.icon}} mr-3 text-color-secondary group-hover:text-primary transition-colors duration-200"></i>
                   @if(sidebarOpen()){
                     <span class="flex-grow">{{item.label}}</span>
                     @if (item.expanded) {
-                      <i class="pi ml-auto text-[#D1D5DB]" [class]="item.expanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                      <i class="pi ml-auto text-color-secondary" [class]="item.expanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                     }
                   }
                 </div>
@@ -58,9 +58,9 @@ interface MenuItem {
                   <ul class="list-none p-0 m-0 pl-4 mt-2 overflow-hidden" [@collapse]="item.expanded() ? 'expanded' : 'collapsed'">
                     @for (child of item.children; track child.label) {
                       <li class="mb-1">
-                        <a [routerLink]="child.link" routerLinkActive="bg-[#3B82F6] text-white"
-                           class="flex items-center py-2 px-3 text-base font-normal rounded-lg hover:bg-[#4B5563]/40 transition-colors duration-200 ease-in-out group">
-                          <i class="{{child.icon}} mr-2 text-[#D1D5DB] group-hover:text-[#BFDBFE] transition-colors duration-200"></i>
+                        <a [routerLink]="child.link" routerLinkActive="bg-primary text-primary-color-text"
+                           class="flex items-center py-2 px-3 text-base font-normal rounded-lg hover:bg-surface-hover transition-colors duration-200 ease-in-out group">
+                          <i class="{{child.icon}} mr-2 text-color-secondary group-hover:text-primary transition-colors duration-200"></i>
                           @if(sidebarOpen()){
                             <span>{{child.label}}</span>
                           }
@@ -75,9 +75,9 @@ interface MenuItem {
         </ul>
       </nav>
 
-      <div class="mt-auto text-center pt-8 border-t border-[#4B5563] flex-shrink-0">
+      <div class="mt-auto text-center pt-8 border-t border-surface-border flex-shrink-0">
         @if(sidebarOpen()){
-          <p class="text-sm text-[#9CA3AF]">Powered by Tahiry's Angular 20 magic</p>
+          <p class="text-sm text-color-secondary">Powered by Tahiry's Angular 20 magic</p>
         }
       </div>
     </aside>

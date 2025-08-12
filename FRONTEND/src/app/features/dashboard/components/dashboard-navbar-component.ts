@@ -18,25 +18,24 @@ import { MenuComponent } from '../../../shared/components/menu-component';
     MenuComponent
 ],
   template: `
-    <header class="bg-[#FFFFFF] dark:bg-transparent opacity-80 border border-gray-400/40 p-4 flex justify-between items-center rounded-full m-4">
-      <div class="flex items-center">
-        <p-button icon="pi pi-bars"
-                  (onClick)="toggleSidebar.emit()"
-                  styleClass="mr-4 md:hidden flex items-center justify-center h-10 w-10 text-[#6B7280] hover:bg-[#F3F4F6] dark:text-[#D1D5DB] dark:hover:bg-[#4B5563] rounded-full"
-                  [text]="true" [rounded]="true"></p-button>
-        <h1 class="text-3xl font-semibold text-[#374151] dark:text-[#F3F4F6]">Admin Panel</h1>
-      </div>
+    <header class="bg-theme custome-border rounded-full! dark:border-surface-700 p-2 flex justify-between items-center m-4 shadow-lg">
+  <div class="flex items-center pl-2">
+    <p-button icon="pi pi-bars"
+              (onClick)="toggleSidebar.emit()"
+              styleClass="md:hidden flex items-center justify-center h-10 w-10 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700/50"
+              [text]="true" [rounded]="true"></p-button>
+    <h1 class="text-xl ml-2">Admin Panel</h1>
+  </div>
 
-      <div class="flex items-center gap-4">
-        <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" class="cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-200"></p-avatar>
-
-        <app-menu-component 
-          [items]="profileMenuItems()"
-          [buttonIcon]="'pi pi-ellipsis-v'" 
-          [buttonClass]="'p-button-text p-button-rounded'"
-        />
-      </div>
-    </header>
+  <div class="flex items-center gap-2 pr-2">
+    <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" class="cursor-pointer hover:scale-105 transition-transform duration-200"></p-avatar>
+    <app-menu-component 
+      [items]="profileMenuItems()"
+      [buttonIcon]="'pi pi-ellipsis-v'" 
+      [buttonClass]="'p-button-text p-button-rounded text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700/50'"
+    />
+  </div>
+</header>
   `,
   styles: ``
 })
