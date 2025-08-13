@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { MessageModule } from 'primeng/message'; // Import MessageModule
 import { matchValidator } from '../validators/match-validator'; 
 import { RouterLink } from '@angular/router';
 
@@ -17,7 +18,8 @@ import { RouterLink } from '@angular/router';
     ButtonModule,
     DividerModule,
     FloatLabelModule,
-    RouterLink
+    RouterLink,
+    MessageModule // Add MessageModule to imports
   ],
   template: `
     <div class="flex items-center justify-center mt-10">
@@ -31,38 +33,42 @@ import { RouterLink } from '@angular/router';
           </p>
         </div>
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <input pInputText id="username" formControlName="username" required class="w-full rounded-full" />
                 <label for="username">Username</label>
             </p-floatlabel>
-            @if (f['username'].invalid && (f['username'].dirty || f['username'].touched)) {
-              @if (f['username'].errors?.['required']) {
-                <small class="p-error">Username is required.</small>
+            <div class="h-5 overflow-hidden">
+              @if (f['username'].invalid && (f['username'].dirty || f['username'].touched)) {
+                @if (f['username'].errors?.['required']) {
+                  <p-message severity="error" variant="simple" size="small">Username is required</p-message>
+                }
+                @if (f['username'].errors?.['minlength']) {
+                  <p-message severity="error" variant="simple" size="small">Username must be at least {{ f['username'].errors?.['minlength'].requiredLength }} characters</p-message>
+                }
+                @if (f['username'].errors?.['maxlength']) {
+                  <p-message severity="error" variant="simple" size="small">Username cannot exceed {{ f['username'].errors?.['maxlength'].requiredLength }} characters</p-message>
+                }
               }
-              @if (f['username'].errors?.['minlength']) {
-                <small class="p-error">Username must be at least {{ f['username'].errors?.['minlength'].requiredLength }} characters.</small>
-              }
-              @if (f['username'].errors?.['maxlength']) {
-                <small class="p-error">Username cannot exceed {{ f['username'].errors?.['maxlength'].requiredLength }} characters.</small>
-              }
-            }
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <input pInputText id="email" formControlName="email" required class="w-full rounded-full" />
                 <label for="email">Email</label>
             </p-floatlabel>
+            <div class="h-5 overflow-hidden">
              @if (f['email'].invalid && (f['email'].dirty || f['email'].touched)) {
                 @if (f['email'].errors?.['required']) {
-                  <small class="p-error">Email is required.</small>
+                  <p-message severity="error" variant="simple" size="small">Email is required</p-message>
                 }
                 @if (f['email'].errors?.['email']) {
-                  <small class="p-error">Please enter a valid email address.</small>
+                  <p-message severity="error" variant="simple" size="small">Please enter a valid email address</p-message>
                 }
             }
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <p-password 
                     id="password" 
@@ -86,19 +92,21 @@ import { RouterLink } from '@angular/router';
                 </p-password>
                 <label for="password">Password</label>
             </p-floatlabel>
+            <div class="h-5 overflow-hidden">
             @if (f['password'].invalid && (f['password'].dirty || f['password'].touched)) {
                 @if (f['password'].errors?.['required']) {
-                  <small class="p-error">Password is required.</small>
+                  <p-message severity="error" variant="simple" size="small">Password is required</p-message>
                 }
                 @if (f['password'].errors?.['minlength']) {
-                  <small class="p-error">Password must be at least {{ f['password'].errors?.['minlength'].requiredLength }} characters.</small>
+                  <p-message severity="error" variant="simple" size="small">Password must be at least {{ f['password'].errors?.['minlength'].requiredLength }} characters</p-message>
                 }
                 @if (f['password'].errors?.['pattern']) {
-                  <small class="p-error">Password must contain at least one uppercase, one lowercase, one number, and one special character.</small>
+                  <p-message severity="error" variant="simple" size="small">Password must contain at least one uppercase, one lowercase, one number, and one special character</p-message>
                 }
             }
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <p-password 
                     id="passwordVerify" 
@@ -109,14 +117,16 @@ import { RouterLink } from '@angular/router';
                 </p-password>
                 <label for="passwordVerify">Confirm Password</label>
             </p-floatlabel>
+            <div class="h-5 overflow-hidden">
              @if (f['passwordVerify'].invalid && (f['passwordVerify'].dirty || f['passwordVerify'].touched)) {
                 @if (f['passwordVerify'].errors?.['required']) {
-                  <small class="p-error">Password confirmation is required.</small>
+                  <p-message severity="error" variant="simple" size="small">Password confirmation is required</p-message>
                 }
                 @if (f['passwordVerify'].errors?.['passwordMismatch']) {
-                  <small class="p-error">Passwords do not match.</small>
+                  <p-message severity="error" variant="simple" size="small">Passwords do not match</p-message>
                 }
             }
+            </div>
           </div>
           <button pButton type="submit" [disabled]="registerForm.invalid || loading()" class="w-full" rounded="true" [loading]="loading()">
             Sign Up
@@ -140,9 +150,6 @@ import { RouterLink } from '@angular/router';
     :host ::ng-deep .p-floatlabel > .p-password {
         width: 100%;
     }
-    :host ::ng-deep .p-button .pi {
-      margin: 0 auto; 
-    }
     :host ::ng-deep .p-password .p-password-toggle {
       cursor: pointer; 
     }
@@ -152,9 +159,6 @@ export class RegisterComponents {
   private fb = inject(FormBuilder);
 
   loading = signal(false);
-
-  // passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-
 
   registerForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],

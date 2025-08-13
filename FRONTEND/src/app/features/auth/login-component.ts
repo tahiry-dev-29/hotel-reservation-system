@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login-page',
@@ -14,7 +15,8 @@ import { PasswordModule } from 'primeng/password';
     RouterLink,
     ReactiveFormsModule,
     FloatLabelModule,
-    PasswordModule
+    PasswordModule,
+    MessageModule
   ],
   template: `
     <div class="flex items-center justify-center mt-10">
@@ -28,18 +30,20 @@ import { PasswordModule } from 'primeng/password';
           </p>
         </div>
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <input pInputText id="username" formControlName="username" required class="w-full rounded-full" />
                 <label for="username">Username</label>
             </p-floatlabel>
+            <div class="h-5 overflow-hidden">
             @if (f['username'].invalid && (f['username'].dirty || f['username'].touched)) {
               @if (f['username'].errors?.['required']) {
-                <small class="p-error">Username is required.</small>
+                <p-message severity="error" variant="simple" size="small">Username is required</p-message>
               }
             }
+            </div>
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <p-floatlabel variant="in">
                 <p-password 
                     id="password" 
@@ -50,11 +54,13 @@ import { PasswordModule } from 'primeng/password';
                 </p-password>
                 <label for="password">Password</label>
             </p-floatlabel>
+            <div class="h-5 overflow-hidden">
             @if (f['password'].invalid && (f['password'].dirty || f['password'].touched)) {
               @if (f['password'].errors?.['required']) {
-                <small class="p-error">Password is required.</small>
+                <p-message severity="error" variant="simple" size="small">Password is required</p-message>
               }
             }
+            </div>
           </div>
           <button pButton type="submit"  [disabled]="loginForm.invalid || loading()" class="w-full" rounded="true" [loading]="loading()">Login
           </button>
@@ -76,9 +82,6 @@ import { PasswordModule } from 'primeng/password';
     :host ::ng-deep .p-floatlabel > .p-inputtext,
     :host ::ng-deep .p-floatlabel > .p-password {
         width: 100%;
-    }
-    :host ::ng-deep .p-button .pi {
-      margin: 0 auto; 
     }
     :host ::ng-deep .p-password .p-password-toggle {
       cursor: pointer; 
