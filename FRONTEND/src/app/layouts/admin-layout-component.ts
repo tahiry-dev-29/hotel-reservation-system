@@ -5,16 +5,17 @@ import {DesktopSidebarComponent} from "../features/dashboard/components/desktop-
 
 @Component({
   selector: 'app-admin-layout',
+  standalone: true,
   imports: [
     RouterOutlet,
     DesktopSidebarComponent,
     DashboardNavbarComponent,
   ],
   template: `
-    <div class="flex h-screen overflow-hidden relative">
+    <div class="relative h-screen overflow-hidden">
       <div class="absolute inset-0 z-0 matrix-container"></div>
 
-      <div class="relative z-10 w-full h-full flex ml-4">
+      <div class="absolute inset-0 z-10 flex">
         <app-desktop-sidebar [(sidebarOpen)]="isSidebarOpen"/>
 
         <div class="flex-1 flex flex-col overflow-hidden">

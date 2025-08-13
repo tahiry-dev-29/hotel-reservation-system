@@ -7,21 +7,26 @@ import { HeaderComponent } from '../shared/components/header-component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   template: `
-    <div class="flex h-screen overflow-hidden relative">
+    <div class="relative h-screen">
       <div class="absolute inset-0 z-0 matrix-container"></div>
 
-      <div class="relative z-10 w-full h-full flex">
-        <div class="flex flex-col overflow-hidden">
-          <app-header />
-          <main
-            class="flex-1 overflow-x-hidden overflow-y-auto mx-0 mt-23 p-0"
-          >
-            <router-outlet />
-          </main>
-        </div>
+      <div class="absolute inset-0 z-10 flex flex-col">
+        <app-header
+          class="fixed top-0 left-0 right-0 z-50 bg-none"
+        />
+        <main class="flex-1 mt-24">
+          <router-outlet />
+        </main>
       </div>
     </div>
   `,
-  styles: [``],
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+      }
+    `,
+  ],
 })
 export class MainLayoutComponent {}

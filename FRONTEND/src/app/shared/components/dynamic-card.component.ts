@@ -1,10 +1,20 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-dynamic-card',
   standalone: true,
+  imports: [],
   template: `
-    <div class="rounded-lg shadow-md p-4 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 h-full flex flex-col">
+    <div class="relative rounded-lg shadow-md p-4 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 h-full flex flex-col">
+      <button
+        class="absolute top-4 right-4 z-20 p-2 rounded-full bg-surface-100/80 dark:bg-surface-700/80
+               hover:bg-surface-200 dark:hover:bg-surface-600
+               text-surface-600 dark:text-surface-300 transition-colors duration-200"
+        (click)="toggleFavorite()"
+      >
+        <i class="pi" [class]="{'pi-heart-fill text-red-500': isFavorite(), 'pi-heart': !isFavorite()}"></i>
+      </button>
+
       @if (imageUrl()) {
         <img [src]="imageUrl()" alt="Card Image" class="w-full h-48 object-cover rounded-md mb-4">
       }
@@ -16,18 +26,18 @@ import { Component, input } from '@angular/core';
       }
     </div>
   `,
-  styles: [], // Removed custom CSS, using only Tailwind
+  styles: [],
 })
 export class DynamicCardComponent {
   title = input<string>();
   content = input<string>();
   imageUrl = input<string>();
 
-  // sanitizedTitle: () => SafeHtml;
-  // sanitizedContent: () => SafeHtml;
+  isFavorite = input<boolean>(false);
 
-  // constructor(private sanitizer: DomSanitizer) {
-  //   this.sanitizedTitle = () => this.sanitizer.bypassSecurityTrustHtml(this.title() || '');
-  //   this.sanitizedContent = () => this.sanitizer.bypassSecurityTrustHtml(this.content() || '');
-  // }
+  favoriteToggled = output<boolean>();
+
+  toggleFavorite(): void {
+    this.favoriteToggled.emit(!this.isFavorite());
+  }
 }

@@ -20,6 +20,8 @@ import { AdminLayoutComponent } from './layouts/admin-layout-component';
 import { MainLayoutComponent } from './layouts/main-layout-component';
 import { RoomDetailsPageComponents } from './features/rooms/pages/room-details-page.component';
 import { LoginComponent } from './features/auth/login-component';
+import { RegisterComponents } from './features/auth/register-components';
+
 
 export const routes: Routes = [
   {
@@ -55,6 +57,11 @@ export const routes: Routes = [
         path: 'login',
         title: 'Login',
         component: LoginComponent,
+      },
+      {
+        path: 'register',
+        title: 'Register',
+        component: RegisterComponents,
       },
     ],
   },

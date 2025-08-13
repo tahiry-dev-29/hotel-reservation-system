@@ -1,8 +1,6 @@
+@import "primeicons/primeicons.css";
 @import "tailwindcss";
 @plugin "tailwindcss-primeui";
-@import "primeicons/primeicons.css";
-
-/* Your custom classes and animations */
 
 @layer {
   .custome-border {
@@ -13,19 +11,25 @@
     @apply bg-transparent backdrop-blur dark:bg-surface-800/70;
   }
 
+  p-password {
+    @apply w-full;
+  }
+
+  .p-error {
+    @apply text-red-500 text-sm;
+  }
+
   .matrix-container {
-    @apply w-full h-full bg-black; /* Base styles for the container */
-    background-image:
-      radial-gradient(circle, #00ff00 1px, transparent 1px),
+    @apply w-full h-full bg-black relative;
+    overflow: hidden;
+    background-image: radial-gradient(circle, #00ff00 1px, transparent 1px),
       radial-gradient(circle, #00ff00 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px),
       linear-gradient(0deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
-
-    background-position: 0 0, 10px 10px, 0 0, 0 0; /* Updated background-position to fix the grid */
+    background-position: 0 0, 10px 10px, 0 0, 0 0;
   }
 
-  /* Scanline and glitch effects using custom pseudo-elements */
   .matrix-container::before {
     content: "";
     @apply absolute top-0 left-0 w-full h-full pointer-events-none z-10;
@@ -43,7 +47,7 @@
     content: "";
     @apply absolute top-0 left-0 w-full h-full pointer-events-none z-20 opacity-0;
     background: linear-gradient(
-    90deg,
+      90deg,
       transparent,
       rgba(0, 255, 0, 0.1),
       transparent
@@ -52,7 +56,6 @@
   }
 }
 
-/* Animations for scanlines and glitch sweeps */
 @keyframes scanline-move {
   0% {
     background-position: 0 0;

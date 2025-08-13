@@ -7,9 +7,9 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-header',
   imports: [RouterLink, RouterLinkActive, ToolbarModule, ButtonModule],
   template: `
-    <header class="fixed top-0 left-0  w-full p-2 sm:p-4">
+    <header class="top-0 left-0 p-2 sm:p-4">
       <nav
-        class="max-w-screen-xl mx-auto bg-surface-50/60 dark:bg-surface-800/60 backdrop-blur-xl flex justify-between items-center shadow-md border border-surface-200/50 dark:border-surface-700/50 p-2 sm:p-3 rounded-full h-16 md:h-20"
+        class="max-w-screen-xl mx-auto bg-surface-50/60 dark:bg-surface-800/60 backdrop-blur-xl flex justify-between items-center shadow-2xl border border-surface-200/50 dark:border-surface-700/50 p-2 sm:p-3 rounded-full h-16 md:h-20"
       >
         <div class="flex items-center space-x-2 pl-2 md:pl-4">
           <a
