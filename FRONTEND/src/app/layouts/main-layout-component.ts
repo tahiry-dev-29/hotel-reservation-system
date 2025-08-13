@@ -7,9 +7,7 @@ import { HeaderComponent } from '../shared/components/header-component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   template: `
-    <div class="relative h-screen">
-      <div class="absolute inset-0 z-0 matrix-container"></div>
-
+    <div class="relative h-screen overflow-auto">
       <div class="absolute inset-0 z-10 flex flex-col">
         <app-header
           class="fixed top-0 left-0 right-0 z-50 bg-none"

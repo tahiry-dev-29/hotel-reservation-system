@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { matchValidator } from '../validators/match-validator'; 
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +16,8 @@ import { matchValidator } from '../validators/match-validator';
     InputTextModule,
     ButtonModule,
     DividerModule,
-    FloatLabelModule
+    FloatLabelModule,
+    RouterLink
   ],
   template: `
     <div class="flex items-center justify-center mt-10">

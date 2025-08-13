@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
   ],
   template: `
     <router-outlet />
+
   `,
   styles: `
     :host {

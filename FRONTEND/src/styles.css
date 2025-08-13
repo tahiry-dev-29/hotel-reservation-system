@@ -2,6 +2,13 @@
 @import "tailwindcss";
 @plugin "tailwindcss-primeui";
 
+html, body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 @layer {
   .custome-border {
     @apply border border-gray-600/80 rounded-2xl;
@@ -20,8 +27,11 @@
   }
 
   .matrix-container {
+    /* Ensure the matrix background covers the full viewport,
+       it will scroll with the body content unless the HTML structure is changed
+       to make it a fixed background. */
     @apply w-full h-full bg-black relative;
-    overflow: hidden;
+    overflow: hidden; /* Ensure anything within this container that tries to overflow is hidden */
     background-image: radial-gradient(circle, #00ff00 1px, transparent 1px),
       radial-gradient(circle, #00ff00 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px),
