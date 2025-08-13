@@ -13,8 +13,8 @@ import { InputTextModule } from 'primeng/inputtext';
     RouterLink
   ],
   template: `
-    <div class="flex items-center justify-center min-h-screen bg-surface-ground">
-      <div class="w-full max-w-md p-8 space-y-8 bg-theme rounded-2xl shadow-xl border border-surface-border">
+    <div class="flex items-center justify-center bg-surface-ground my-20">
+      <div class="w-full max-w-md p-8 space-y-8 bg-theme rounded-2xl shadow-xl custome-border">
         <div class="text-center">
           <h2 class="text-3xl font-bold text-text-color">
             Connexion

@@ -1,10 +1,10 @@
 import { Component, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { MenuItem } from 'primeng/api';
+import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../../shared/components/menu-component';
 
 
@@ -28,6 +28,13 @@ import { MenuComponent } from '../../../shared/components/menu-component';
   </div>
 
   <div class="flex items-center gap-2 pr-2">
+    <a href="/home" target="_blank" title="Go to Home Page">
+      <p-button icon="pi pi-home"
+                [rounded]="true"
+                [text]="true"
+                styleClass="p-button-secondary h-10 w-10 flex items-center justify-center text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700/50"></p-button>
+    </a>
+    
     <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" class="cursor-pointer hover:scale-105 transition-transform duration-200"></p-avatar>
     <app-menu-component 
       [items]="profileMenuItems()"

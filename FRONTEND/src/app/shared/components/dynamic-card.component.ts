@@ -1,57 +1,33 @@
-
 import { Component, input } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dynamic-card',
+  standalone: true,
   template: `
-    <div class="dynamic-card">
+    <div class="rounded-lg shadow-md p-4 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 h-full flex flex-col">
+      @if (imageUrl()) {
+        <img [src]="imageUrl()" alt="Card Image" class="w-full h-48 object-cover rounded-md mb-4">
+      }
       @if (title()) {
-        <div class="card-title" [innerHTML]="sanitizedTitle()"></div>
+        <div class="text-xl font-semibold text-surface-800 dark:text-surface-100 mb-2">{{title()}}</div>
       }
       @if (content()) {
-        <div class="card-content" [innerHTML]="sanitizedContent()"></div>
-      }
-      @if (imageUrl()) {
-        <img [src]="imageUrl()" alt="Card Image" class="card-image">
+        <div class="text-surface-600 dark:text-surface-300 text-base flex-grow">{{content()}}</div>
       }
     </div>
   `,
-  styles: [`
-    .dynamic-card {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 16px;
-      margin: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .card-content {
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
-    .card-image {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-    }
-  `],
-  standalone: true,
+  styles: [], // Removed custom CSS, using only Tailwind
 })
 export class DynamicCardComponent {
   title = input<string>();
   content = input<string>();
   imageUrl = input<string>();
 
-  sanitizedTitle: () => SafeHtml;
-  sanitizedContent: () => SafeHtml;
+  // sanitizedTitle: () => SafeHtml;
+  // sanitizedContent: () => SafeHtml;
 
-  constructor(private sanitizer: DomSanitizer) {
-    this.sanitizedTitle = () => this.sanitizer.bypassSecurityTrustHtml(this.title() || '');
-    this.sanitizedContent = () => this.sanitizer.bypassSecurityTrustHtml(this.content() || '');
-  }
+  // constructor(private sanitizer: DomSanitizer) {
+  //   this.sanitizedTitle = () => this.sanitizer.bypassSecurityTrustHtml(this.title() || '');
+  //   this.sanitizedContent = () => this.sanitizer.bypassSecurityTrustHtml(this.content() || '');
+  // }
 }
