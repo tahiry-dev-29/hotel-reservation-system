@@ -7,7 +7,7 @@
 
       <div class="p-toolbar-group-end flex items-center gap-2">
         @if (showGlobalFilter()) {
-          <app-search-bar (search)="dt.filterGlobal($event, 'contains')" placeholder="Search..."></app-search-bar>
+          <app-search-bar (search)="dt.filterGlobal($event, 'contains')" placeholder="Search..." [progressspinner]="true"/>
         }
         @if (showColumnSelect()) {
           <p-multiSelect

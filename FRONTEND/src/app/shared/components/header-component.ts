@@ -5,65 +5,95 @@ import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-header',
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    ToolbarModule,
-    ButtonModule
-  ],
+  imports: [RouterLink, RouterLinkActive, ToolbarModule, ButtonModule],
   template: `
-    <nav class="relative max-w-screen-xl mx-auto">
-  <div class="bg-theme custome-border flex justify-between items-center rounded-full! m-4 p-2 shadow-lg">
-    <div class="flex items-center space-x-4 pl-2">
-      <a routerLink="/" class="text-2xl font-bold hover:text-primary-500 dark:hover:text-primary-400 transition-all duration-300">HotelApp</a>
-    </div>
-    
-    <div class="hidden md:flex flex-grow justify-center">
-      <ul class="flex items-center space-x-2">
-        @for (item of navItems; track item.label) {
-          <li>
-            <a [routerLink]="item.link" 
-               routerLinkActive="bg-surface-200/90 dark:bg-surface-700 text-green-600"
-               [routerLinkActiveOptions]="{exact: true}" 
-               class="text-md font-medium dark:text-surface-300 hover:text-primary-500 dark:hover:text-primary-400 transition-all duration-150 py-2 px-4 rounded-full">{{ item.label }}</a>
-          </li>
-        }
-      </ul>
-    </div>
+    <header class="fixed top-0 left-0  w-full p-2 sm:p-4">
+      <nav
+        class="max-w-screen-xl mx-auto bg-surface-50/60 dark:bg-surface-800/60 backdrop-blur-xl flex justify-between items-center shadow-md border border-surface-200/50 dark:border-surface-700/50 p-2 sm:p-3 rounded-full h-16 md:h-20"
+      >
+        <div class="flex items-center space-x-2 pl-2 md:pl-4">
+          <a
+            routerLink="/"
+            class="text-xl font-bold hover:text-primary-500 dark:hover:text-primary-400 transition-all duration-300 md:text-2xl"
+            >HotelApp</a
+          >
+        </div>
 
-    <div class="hidden md:flex items-center space-x-2 pr-2">
-      <p-button label="Connexion" styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50" routerLink="/login"></p-button>
-      <p-button label="S'inscrire" styleClass="p-button-raised p-button-sm bg-primary-500 text-white hover:bg-primary-600" routerLink="/register"></p-button>
-    </div>
+        <div class="hidden md:flex flex-grow justify-center">
+          <ul class="flex items-center space-x-2">
+            @for (item of navItems; track item.label) {
+            <li>
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-300"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="text-md font-medium text-surface-600 dark:text-surface-300 hover:text-primary-500 dark:hover:text-primary-400 transition-all duration-150 py-2 px-3 rounded-full"
+                >{{ item.label }}</a
+              >
+            </li>
+            }
+          </ul>
+        </div>
 
-    <div class="md:hidden pr-2">
-      <button (click)="toggleMobileMenu()" class="p-2 rounded-full text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50">
-        <i class="pi pi-bars text-xl"></i>
-      </button>
-    </div>
-  </div>
+        <div class="hidden md:flex items-center space-x-2 pr-2">
+          <p-button
+            label="Connexion"
+            styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50"
+            routerLink="/login"
+          ></p-button>
+          <p-button
+            label="S'inscrire"
+            styleClass="p-button-raised p-button-sm"
+            routerLink="/register" [rounded]="true"
+          ></p-button>
+        </div>
 
-  @if (isMobileMenuOpen()) {
-    <div class="md:hidden absolute top-full left-0 w-full p-4">
-       <div class="bg-surface-100/90 dark:bg-surface-800/90 backdrop-blur-md shadow-lg rounded-2xl p-4">
-        <nav class="flex flex-col items-center">
-          @for (item of navItems; track item.label) {
-            <a [routerLink]="item.link" 
-               routerLinkActive="bg-surface-200 dark:bg-surface-700 text-primary-600 dark:text-primary-400" 
-               [routerLinkActiveOptions]="{exact: true}" 
-               (click)="toggleMobileMenu()" 
-               class="py-2 w-full text-center text-md font-medium text-surface-700 dark:text-surface-300 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700">{{ item.label }}</a>
-          }
-          <hr class="my-2 w-full border-surface-200/20">
-          <p-button label="Connexion" styleClass="p-button-text w-full" routerLink="/login" (click)="toggleMobileMenu()"></p-button>
-          <p-button label="S'inscrire" styleClass="p-button-raised w-full mt-2" routerLink="/register" (click)="toggleMobileMenu()"></p-button>
-        </nav>
+        <div class="md:hidden pr-1">
+          <p-button
+            (click)="toggleMobileMenu()"
+            icon="pi pi-bars"
+            styleClass="p-button-text text-surface-700 dark:text-surface-300"
+          >
+          </p-button>
+        </div>
+      </nav>
+
+      @if (isMobileMenuOpen()) {
+      <div class="md:hidden absolute top-full left-0 w-full p-2 z-20">
+        <div
+          class="bg-surface-100/95 dark:bg-surface-800/95 backdrop-blur-md shadow-lg rounded-2xl p-4"
+        >
+          <nav class="flex flex-col items-center space-y-1">
+            @for (item of navItems; track item.label) {
+            <a
+              [routerLink]="item.link"
+              routerLinkActive="bg-surface-200 dark:bg-surface-700 text-primary-600 dark:text-primary-400"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="toggleMobileMenu()"
+              class="py-3 w-full text-center text-md font-medium text-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700"
+              >{{ item.label }}</a
+            >
+            }
+            <hr class="my-2 w-full border-surface-200/80 dark:border-surface-700/80" />
+            <div class="w-full flex flex-col space-y-2">
+               <p-button
+                label="Connexion"
+                styleClass="p-button-text w-full text-surface-700 dark:text-surface-300"
+                routerLink="/login" (onClick)="toggleMobileMenu()"
+              ></p-button>
+              <p-button
+                label="S'inscrire"
+                styleClass="p-button-raised w-full"
+                routerLink="/register" (onClick)="toggleMobileMenu()"
+              ></p-button>
+            </div>
+          </nav>
+        </div>
       </div>
-    </div>
-  }
-</nav>
+      }
+    </header>
   `,
-  styles: []
+  styles: ``
 })
 export class HeaderComponent {
   navItems = [
@@ -74,6 +104,6 @@ export class HeaderComponent {
   isMobileMenuOpen = signal(false);
 
   toggleMobileMenu(): void {
-    this.isMobileMenuOpen.update(val => !val);
+    this.isMobileMenuOpen.update((val) => !val);
   }
 }
