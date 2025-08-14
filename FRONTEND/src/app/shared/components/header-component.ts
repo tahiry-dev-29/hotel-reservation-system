@@ -43,7 +43,7 @@ import { ButtonModule } from 'primeng/button';
           ></p-button>
           <p-button
             label="Sign Up"
-            styleClass="p-button-raised p-button-sm"
+            styleClass="p-button-raised p-button-sm text-white! bg-primary-600! hover:bg-primary-700! dark:bg-primary-500! dark:hover:bg-primary-600!"
             routerLink="/register" [rounded]="true"
           ></p-button>
         </div>

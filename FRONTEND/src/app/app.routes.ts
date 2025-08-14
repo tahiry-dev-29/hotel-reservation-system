@@ -44,7 +44,7 @@ export const routes: Routes = [
         component: PublicRoomListPageComponent,
       },
       {
-        path: 'rooms/:id',
+        path: 'room-details/:id',
         title: 'Room Details',
         component: RoomDetailsPageComponents,
       },

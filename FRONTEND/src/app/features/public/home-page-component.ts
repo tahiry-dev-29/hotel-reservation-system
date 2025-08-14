@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { Router } from '@angular/router'; // Import Router for navigation
 import { DynamicCardComponent } from '../../shared/components/dynamic-card.component';
 import { SearchBarComponent } from '../../shared/components/search-bar.component';
 import { ScrollHide } from '../../shared/directives/scroll-hide';
@@ -6,38 +7,39 @@ import { ScrollHide } from '../../shared/directives/scroll-hide';
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [SearchBarComponent, DynamicCardComponent, ScrollHide], 
+  imports: [SearchBarComponent, DynamicCardComponent, ScrollHide],
   template: `
     <div class="space-y-12 flex flex-col items-center gap-y-5">
-      <section 
+      <section
         appScrollHide #scrollHide="appScrollHide"
         class="fixed top-30 left-0 right-0 z-40
-               flex items-center justify-center
+               flex items-center justify-center w-full
                transform transition-transform duration-200 ease-in-out-4"
         [style.transform]="scrollHide.visible() ? 'translateY(0)' : 'translateY(-80px)'"
         [style.opacity]="scrollHide.visible() ? '1' : '0'"
         [style.pointer-events]="scrollHide.visible() ? 'auto' : 'none'"
       >
-        <app-search-bar 
-          (search)="onSearch($event)" 
-          [progressspinner]="false" 
-          [height]="'h-20'" 
-          [width]="'w-120'" 
-          [customClass]="'rounded-full! shadow-lg'" 
+        <app-search-bar
+          (search)="onSearch($event)"
+          [progressspinner]="false"
+          [customClass]="'rounded-full! h-20 min-w-full! shadow-lg'"
           [clearIconClass]="'text-[24px]!'"
+          class="w-full px-5"
         />
       </section>
 
-      <!-- Ajout d'un padding-top au contenu principal pour compenser la barre fixe -->
-      <!-- Le padding doit correspondre à la hauteur totale des éléments fixed (Header + Search Bar) -->
+      <!-- Adding padding-top to main content to compensate for the fixed bar -->
+      <!-- Padding should match the total height of fixed elements (Header + Search Bar) -->
       <section class="w-full max-h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4 mt-34">
         @for (item of filteredItems(); track item.id) {
-        <app-dynamic-card
-          [title]="item.title"
-          [content]="item.content"
-          [imageUrl]="item.imageUrl"
-        >
-        </app-dynamic-card>
+          <app-dynamic-card
+            [title]="item.title"
+            [content]="item.content"
+            [imageUrl]="item.imageUrl"
+            (click)="onCardClick(item.id)"
+            class="cursor-pointer"
+          >
+          </app-dynamic-card>
         } @empty {
           <p class="col-span-full text-center py-12 text-surface-500 dark:text-surface-400">Aucun résultat trouvé.</p>
         }
@@ -45,10 +47,13 @@ import { ScrollHide } from '../../shared/directives/scroll-hide';
     </div>
   `,
   styles: [`
-    /* Plus besoin de styles personnalisés ici, Tailwind gère tout */
+    /* No need for custom styles here, Tailwind handles everything */
   `],
 })
 export class HomePageComponent {
+  // Inject Router for programmatic navigation
+  constructor(private router: Router) {}
+
   // All items data, initialized as a signal for reactivity.
   private allItems = signal<any[]>([
     {
@@ -168,4 +173,11 @@ export class HomePageComponent {
     this.filters.set(filters);
   }
 
+  /**
+   * Handles card click event and navigates to the room detail page.
+   * @param itemId The ID of the clicked item.
+   */
+  onCardClick(itemId: number) {
+    this.router.navigate(['/room-details', itemId]);
+  }
 }
