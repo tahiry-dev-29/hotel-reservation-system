@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
 import { ImagesInputComponent } from '../../../shared/components/images-input-component'; // Réimporté
 import { DynamicAccordionPanelComponent } from "../../../shared/components/dynamic-accordion-panel-component";
+import { ButtonComponent } from "../../../shared/components/button-component";
 
 
 interface Room {
@@ -21,7 +22,8 @@ interface Room {
   imports: [
     AccordionModule,
     ImagesInputComponent, // Assuré que le composant est importé
-    DynamicAccordionPanelComponent
+    DynamicAccordionPanelComponent,
+    ButtonComponent
 ],
   templateUrl: './room-details-page-component.html',
 })

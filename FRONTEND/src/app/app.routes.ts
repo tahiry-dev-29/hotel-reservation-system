@@ -20,6 +20,7 @@ import { AdminLayoutComponent } from './layouts/admin-layout-component';
 import { MainLayoutComponent } from './layouts/main-layout-component';
 import { LoginComponent } from './features/auth/login-component';
 import { RegisterComponents } from './features/auth/register-components';
+import { RoomDetailsPageComponents } from './features/rooms/pages/room-details-page.component';
 
 
 export const routes: Routes = [
