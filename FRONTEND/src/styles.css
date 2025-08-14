@@ -15,7 +15,10 @@ html, body {
   }
 
   .bg-theme {
-    @apply bg-transparent backdrop-blur dark:bg-surface-800/70;
+    @apply bg-transparent backdrop-blur dark:bg-surface-800/40;
+  }
+  .bg-card {
+    @apply bg-slate-600/10 rounded-2xl;
   }
 
   p-password {
@@ -27,65 +30,15 @@ html, body {
   }
 
   .matrix-container {
-    /* Ensure the matrix background covers the full viewport,
-       it will scroll with the body content unless the HTML structure is changed
-       to make it a fixed background. */
-    @apply w-full h-full bg-black relative;
-    overflow: hidden; /* Ensure anything within this container that tries to overflow is hidden */
-    background-image: radial-gradient(circle, #00ff00 1px, transparent 1px),
-      radial-gradient(circle, #00ff00 1px, transparent 1px),
+    @apply w-full h-full bg-black; /* Base styles for the container */
+    background-image:
+      radial-gradient(circle, #0bd40b 1px, transparent 1px),
+      radial-gradient(circle, #0bd40b 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px),
       linear-gradient(0deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
-    background-position: 0 0, 10px 10px, 0 0, 0 0;
+
   }
 
-  .matrix-container::before {
-    content: "";
-    @apply absolute top-0 left-0 w-full h-full pointer-events-none z-10;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 255, 0, 0.05) 50%,
-      transparent 100%
-    );
-    background-size: 100% 4px;
-    animation: scanline-move 2s linear infinite;
-  }
 
-  .matrix-container::after {
-    content: "";
-    @apply absolute top-0 left-0 w-full h-full pointer-events-none z-20 opacity-0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(0, 255, 0, 0.1),
-      transparent
-    );
-    animation: glitch-effect 10s infinite;
-  }
-}
-
-@keyframes scanline-move {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 0 4px;
-  }
-}
-
-@keyframes glitch-effect {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  20% {
-    transform: translateX(100%) skewX(5deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
 }

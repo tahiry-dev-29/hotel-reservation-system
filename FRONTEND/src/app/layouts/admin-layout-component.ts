@@ -14,7 +14,7 @@ import {DesktopSidebarComponent} from "../features/dashboard/components/desktop-
   template: `
     <div class="relative h-screen overflow-auto">
 
-      <div class="absolute inset-0 z-10 flex">
+      <div class="absolute inset-0 z-10 flex pl-3">
         <app-desktop-sidebar [(sidebarOpen)]="isSidebarOpen"/>
 
         <div class="flex-1 flex flex-col overflow-hidden">

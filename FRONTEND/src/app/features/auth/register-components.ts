@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
     DividerModule,
     FloatLabelModule,
     RouterLink,
-    MessageModule // Add MessageModule to imports
+    MessageModule
   ],
   template: `
     <div class="flex items-center justify-center mt-10">

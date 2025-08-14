@@ -11,15 +11,8 @@ import { CommonModule } from '@angular/common';
   ],
   template: `
     <router-outlet />
-
   `,
   styles: `
-    :host {
-      display: block;
-      width: 100vw;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
   `
 })
 export class App {
