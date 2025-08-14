@@ -5,7 +5,7 @@ import { Component, input, output } from '@angular/core';
   standalone: true,
   imports: [],
   template: `
-    <div class="relative rounded-lg shadow-md p-4 bg-slate-600/10 custome-border h-full flex flex-col">
+    <div class="relative rounded-lg shadow-md p-4 bg-card custome-border h-full flex flex-col">
       <button
         class="absolute top-4 right-4 z-20 p-2 rounded-full bg-surface-100/80 dark:bg-surface-700/80
                hover:bg-surface-200 dark:hover:bg-surface-600

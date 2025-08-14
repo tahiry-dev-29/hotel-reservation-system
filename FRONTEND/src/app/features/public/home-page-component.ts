@@ -30,7 +30,7 @@ import { ScrollHide } from '../../shared/directives/scroll-hide';
 
       <!-- Ajout d'un padding-top au contenu principal pour compenser la barre fixe -->
       <!-- Le padding doit correspondre à la hauteur totale des éléments fixed (Header + Search Bar) -->
-      <section class="w-full max-h-full bg-slate-300/10 custome-border border-t! rounded-none! shadow-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4 mt-34">
+      <section class="w-full max-h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4 mt-34">
         @for (item of filteredItems(); track item.id) {
         <app-dynamic-card
           [title]="item.title"
