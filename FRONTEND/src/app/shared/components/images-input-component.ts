@@ -10,12 +10,14 @@ import { Image } from 'primeng/image';
                  [loading]="'lazy'"
                  [height]="height()"
                  [alt]="alt()"
-                 (onImageError)="handleImageError($event)"
                  [preview]="preview()"
-                 [class]="class() + ' object-cover' "
-                 [class.error-image]="!imageSrc() || imageSrc() === '' || isError"
+                 [class]="'block w-full h-full ' + class() + (preview() ? '' : ' transition-transform duration-300 hover:scale-105 cursor-pointer')"
+                 [imageClass]="'object-cover'" 
+                 
                  [class.placeholder-image]="!imageSrc() || imageSrc() === 'https://placehold.co/250x250/C0C0C0/FFFFFF?text=Placeholder'">
         </p-image>
+        <!-- (onImageError)="handleImageError($event)"
+                 [class.error-image]="!imageSrc() || imageSrc() === '' || isError" -->
   `,
   styles: `
     .error-image {
@@ -29,18 +31,17 @@ import { Image } from 'primeng/image';
 })
 export class ImagesInputComponent {
   imageSrc = input<string>('https://placehold.co/250x250/C0C0C0/FFFFFF?text=Placeholder'); 
-  width = input<string>('450');
+  width = input<string>('450'); 
   height = input<string>('250');
   alt = input<string>('Image Placeholder');
   preview = input<boolean>(true);
   class = input<string>('rounded-lg shadow-md');
   
-  isError = false;
+  // isError = false;
 
-  handleImageError(event: Event): void {
-    console.error('Image failed to load:', event);
-    this.isError = true;
-    (event.target as HTMLImageElement).src = 'https://placehold.co/250x250/E0E0E0/000000?text=No+Image';
-  }
+  // handleImageError(event: Event): void {
+  //   console.error('Image failed to load:', event);
+  //   this.isError = true;
+  //   (event.target as HTMLImageElement).src = 'https://placehold.co/250x250/E0E0E0/000000?text=No+Image';
+  // }
 }
-

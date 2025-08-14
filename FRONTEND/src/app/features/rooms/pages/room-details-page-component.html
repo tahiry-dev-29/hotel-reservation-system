@@ -1,20 +1,67 @@
-<div class="p-6 mt-5 rounded-xl bg-green-700/5 border-t! border-0! custome-border">
-    <div class="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
+<div class="mt-6 px-6">
+    <div class="container mx-auto py-8 lg:px-8 max-w-7xl custome-border bg-theme">
         @if (isLoading()) {
-        <div class="flex justify-center items-center h-full">
+        <div class="flex justify-center items-center h-screen">
             <p class="text-xl text-surface-500 dark:text-surface-400">Loading room details...</p>
         </div>
         } @else if (roomData()) {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
             <div class="lg:col-span-2">
                 <h1 class="text-4xl font-bold mb-4 text-surface-900 dark:text-surface-50">{{ roomData()!.title }}</h1>
+                
+                <!-- Dynamic Image Gallery using app-images-input-component -->
                 <div class="rounded-xl overflow-hidden mb-8 shadow-lg">
-                    <app-images-input-component
-                        [imageSrc]="roomData()!.imageUrl"
-                        [alt]="'Room Image'"
-                        [width]="'100%'"
-                        [height]="'384px'" />
+                    @if (roomData()!.imageUrls.length === 5) {
+                        <!-- Grid for 5 images: one large, four smaller, with fixed overall height -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 h-[320px]">
+                            <div class="col-span-2 md:col-span-2 row-span-2 overflow-hidden rounded-xl">
+                                <app-images-input-component
+                                    [imageSrc]="roomData()!.imageUrls[0]"
+                                    [alt]="'Room main image'"
+                                    [width]="'100%'" 
+                                    [height]="'100%'"
+                                    [class]="'rounded-xl'"
+                                    [preview]="true">
+                                </app-images-input-component>
+                            </div>
+                            @for (image of roomData()!.imageUrls.slice(1); track $index) {
+                                <div class="overflow-hidden rounded-xl h-full">
+                                    <app-images-input-component
+                                        [imageSrc]="image"
+                                        [alt]="'Room gallery image ' + ($index + 1)"
+                                        [width]="'100%'"
+                                        [height]="'100%'"
+                                        [class]="'rounded-xl'"
+                                        [preview]="true">
+                                    </app-images-input-component>
+                                </div>
+                            }
+                        </div>
+                    } @else if (roomData()!.imageUrls.length > 0) {
+                        <!-- Flexible grid for any other number of images (e.g., 2, 3, 4, etc.) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ roomData()!.imageUrls.length > 2 ? 3 : 2 }} gap-4">
+                            @for (image of roomData()!.imageUrls; track $index) {
+                                <div class="overflow-hidden rounded-xl h-64"> 
+                                    <app-images-input-component
+                                        [imageSrc]="image"
+                                        [alt]="'Room image ' + ($index + 1)"
+                                        [width]="'100%'" 
+                                        [height]="'100%'"
+                                        [class]="'rounded-xl'"
+                                        [preview]="true">
+                                    </app-images-input-component>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <!-- Placeholder if no images are available -->
+                        <div class="flex justify-center items-center h-64 bg-surface-100 dark:bg-surface-700 rounded-xl">
+                            <p class="text-surface-500 dark:text-surface-400">No images available</p>
+                        </div>
+                    }
                 </div>
+                <!-- End Dynamic Image Gallery -->
+
                 <div class="mb-8">
                     <h2 class="text-2xl font-semibold mb-3 text-surface-800 dark:text-surface-100">Description</h2>
                     <p class="text-surface-700 dark:text-surface-300 leading-relaxed">{{ roomData()!.content }}</p>
@@ -33,7 +80,6 @@
                         </div>
                     </app-dynamic-accordion-panel>
 
-                    <!-- Second dynamic accordion panel for reviews -->
                     <app-dynamic-accordion-panel [value]="'1'" [header]="'Reviews'">
                         <p class="text-surface-700 dark:text-surface-300">No reviews yet. Be the first to leave one!</p>
                     </app-dynamic-accordion-panel>
