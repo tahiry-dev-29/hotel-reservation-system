@@ -18,7 +18,6 @@ import { UserReportsComponents } from './features/users/components/user-reports-
 import { UserListPageComponents } from './features/users/Pages/user-list-page-components';
 import { AdminLayoutComponent } from './layouts/admin-layout-component';
 import { MainLayoutComponent } from './layouts/main-layout-component';
-import { RoomDetailsPageComponents } from './features/rooms/pages/room-details-page.component';
 import { LoginComponent } from './features/auth/login-component';
 import { RegisterComponents } from './features/auth/register-components';
 

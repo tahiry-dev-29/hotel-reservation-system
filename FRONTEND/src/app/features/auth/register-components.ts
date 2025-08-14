@@ -8,6 +8,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message'; // Import MessageModule
 import { matchValidator } from '../validators/match-validator'; 
 import { RouterLink } from '@angular/router';
+import { ButtonComponent } from "../../shared/components/button-component";
 
 @Component({
   selector: 'app-register',
@@ -19,8 +20,9 @@ import { RouterLink } from '@angular/router';
     DividerModule,
     FloatLabelModule,
     RouterLink,
-    MessageModule
-  ],
+    MessageModule,
+    ButtonComponent
+],
   template: `
     <div class="flex items-center justify-center mt-10">
       <div class="w-full max-w-md p-8 space-y-6 bg-theme rounded-2xl shadow-xl custome-border">
@@ -128,9 +130,7 @@ import { RouterLink } from '@angular/router';
             }
             </div>
           </div>
-          <button pButton type="submit" [disabled]="registerForm.invalid || loading()" class="w-full" rounded="true" [loading]="loading()">
-            Sign Up
-          </button>
+          <app-button [loading]="loading()" [disabled]="registerForm.invalid || loading()"  [type]="'submit'" [buttonText]="'Sign Up'" [variant]="'outlined'"/>
         </form>
         <div class="text-sm text-center text-text-color-secondary">
           Already have an account? <a routerLink="/login" class="font-medium text-primary-500 hover:text-primary-600">Sign In</a>

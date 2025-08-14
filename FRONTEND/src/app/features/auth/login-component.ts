@@ -6,6 +6,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
+import { ButtonComponent } from "../../shared/components/button-component";
 
 @Component({
   selector: 'app-login-page',
@@ -16,8 +17,9 @@ import { MessageModule } from 'primeng/message';
     ReactiveFormsModule,
     FloatLabelModule,
     PasswordModule,
-    MessageModule
-  ],
+    MessageModule,
+    ButtonComponent
+],
   template: `
     <div class="flex items-center justify-center mt-10">
       <div class="w-full max-w-md p-8 space-y-6 bg-theme rounded-2xl shadow-xl custome-border">
@@ -62,8 +64,7 @@ import { MessageModule } from 'primeng/message';
             }
             </div>
           </div>
-          <button pButton type="submit"  [disabled]="loginForm.invalid || loading()" class="w-full" rounded="true" [loading]="loading()">Login
-          </button>
+          <app-button [loading]="loading()" [disabled]="loginForm.invalid || loading()"  [type]="'submit'" [buttonText]="'Login'" [variant]="'outlined'"/>
         </form>
         <div class="text-sm text-center text-text-color-secondary">
           Don't have an account? <a routerLink="/register" class="font-medium text-primary-500 hover:text-primary-600">Sign Up</a>
