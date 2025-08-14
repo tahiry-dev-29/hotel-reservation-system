@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms'; // Import AbstractControl
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
@@ -19,7 +19,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
     PasswordModule,
     MessageModule,
     ButtonComponent
-],
+  ],
   template: `
     <div class="flex items-center justify-center mt-10">
       <div class="w-full max-w-md p-8 space-y-6 bg-theme rounded-2xl shadow-xl custome-border">
@@ -34,11 +34,11 @@ import { ButtonComponent } from "../../shared/components/button-component";
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <div class="flex flex-col">
             <p-floatlabel variant="in">
-                <input pInputText id="username" formControlName="username" required class="w-full rounded-full" />
+                <input pInputText id="username" formControlName="username" [invalid]="isFieldInvalid(f['username'])" required class="w-full rounded-full" />
                 <label for="username">Username</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-            @if (f['username'].invalid && (f['username'].dirty || f['username'].touched)) {
+            @if (isFieldInvalid(f['username'])) {
               @if (f['username'].errors?.['required']) {
                 <p-message severity="error" variant="simple" size="small">Username is required</p-message>
               }
@@ -50,6 +50,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <p-password 
                     id="password" 
                     formControlName="password" 
+                    [invalid]="isFieldInvalid(f['password'])"
                     [toggleMask]="true" 
                     [feedback]="false"
                     autocomplete="current-password">
@@ -57,7 +58,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <label for="password">Password</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-            @if (f['password'].invalid && (f['password'].dirty || f['password'].touched)) {
+            @if (isFieldInvalid(f['password'])) {
               @if (f['password'].errors?.['required']) {
                 <p-message severity="error" variant="simple" size="small">Password is required</p-message>
               }
@@ -101,6 +102,16 @@ export class LoginComponent {
 
   get f() {
     return this.loginForm.controls;
+  }
+
+  /**
+   * Checks if a form control should display validation errors.
+   * A control is considered invalid for display if it's invalid and has been touched or dirtied.
+   * @param control The AbstractControl to check.
+   * @returns True if the control should display errors, false otherwise.
+   */
+  isFieldInvalid(control: AbstractControl): boolean {
+    return control.invalid && (control.dirty || control.touched);
   }
 
   onSubmit() {

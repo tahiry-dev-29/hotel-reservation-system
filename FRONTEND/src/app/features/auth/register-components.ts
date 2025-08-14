@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms'; // Import AbstractControl
 import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { MessageModule } from 'primeng/message'; // Import MessageModule
+import { MessageModule } from 'primeng/message';
 import { matchValidator } from '../validators/match-validator'; 
 import { RouterLink } from '@angular/router';
 import { ButtonComponent } from "../../shared/components/button-component";
@@ -22,7 +22,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
     RouterLink,
     MessageModule,
     ButtonComponent
-],
+  ],
   template: `
     <div class="flex items-center justify-center mt-10">
       <div class="w-full max-w-md p-8 space-y-6 bg-theme rounded-2xl shadow-xl custome-border">
@@ -37,30 +37,30 @@ import { ButtonComponent } from "../../shared/components/button-component";
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <div class="flex flex-col">
             <p-floatlabel variant="in">
-                <input pInputText id="username" formControlName="username" required class="w-full rounded-full" />
-                <label for="username">Username</label>
+                <input pInputText id="fullName" formControlName="fullName" [invalid]="isFieldInvalid(f['fullName'])" required class="w-full rounded-full" />
+                <label for="fullName">Full Name</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-              @if (f['username'].invalid && (f['username'].dirty || f['username'].touched)) {
-                @if (f['username'].errors?.['required']) {
-                  <p-message severity="error" variant="simple" size="small">Username is required</p-message>
+              @if (isFieldInvalid(f['fullName'])) {
+                @if (f['fullName'].errors?.['required']) {
+                  <p-message severity="error" variant="simple" size="small">Full Name is required</p-message>
                 }
-                @if (f['username'].errors?.['minlength']) {
-                  <p-message severity="error" variant="simple" size="small">Username must be at least {{ f['username'].errors?.['minlength'].requiredLength }} characters</p-message>
+                @if (f['fullName'].errors?.['minlength']) {
+                  <p-message severity="error" variant="simple" size="small">Full Name must be at least {{ f['fullName'].errors?.['minlength'].requiredLength }} characters</p-message>
                 }
-                @if (f['username'].errors?.['maxlength']) {
-                  <p-message severity="error" variant="simple" size="small">Username cannot exceed {{ f['username'].errors?.['maxlength'].requiredLength }} characters</p-message>
+                @if (f['fullName'].errors?.['maxlength']) {
+                  <p-message severity="error" variant="simple" size="small">Full Name cannot exceed {{ f['fullName'].errors?.['maxlength'].requiredLength }} characters</p-message>
                 }
               }
             </div>
           </div>
           <div class="flex flex-col">
             <p-floatlabel variant="in">
-                <input pInputText id="email" formControlName="email" required class="w-full rounded-full" />
+                <input pInputText id="email" formControlName="email" [invalid]="isFieldInvalid(f['email'])" required class="w-full rounded-full" />
                 <label for="email">Email</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-             @if (f['email'].invalid && (f['email'].dirty || f['email'].touched)) {
+             @if (isFieldInvalid(f['email'])) {
                 @if (f['email'].errors?.['required']) {
                   <p-message severity="error" variant="simple" size="small">Email is required</p-message>
                 }
@@ -75,6 +75,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <p-password 
                     id="password" 
                     formControlName="password" 
+                    [invalid]="isFieldInvalid(f['password'])"
                     [toggleMask]="true" 
                     autocomplete="new-password">
                     <ng-template #header>
@@ -95,7 +96,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <label for="password">Password</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-            @if (f['password'].invalid && (f['password'].dirty || f['password'].touched)) {
+            @if (isFieldInvalid(f['password'])) {
                 @if (f['password'].errors?.['required']) {
                   <p-message severity="error" variant="simple" size="small">Password is required</p-message>
                 }
@@ -113,6 +114,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <p-password 
                     id="passwordVerify" 
                     formControlName="passwordVerify" 
+                    [invalid]="isFieldInvalid(f['passwordVerify'])"
                     [toggleMask]="true" 
                     [feedback]="false"
                     autocomplete="new-password">
@@ -120,7 +122,7 @@ import { ButtonComponent } from "../../shared/components/button-component";
                 <label for="passwordVerify">Confirm Password</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-             @if (f['passwordVerify'].invalid && (f['passwordVerify'].dirty || f['passwordVerify'].touched)) {
+             @if (isFieldInvalid(f['passwordVerify'])) {
                 @if (f['passwordVerify'].errors?.['required']) {
                   <p-message severity="error" variant="simple" size="small">Password confirmation is required</p-message>
                 }
@@ -161,9 +163,12 @@ export class RegisterComponents {
   loading = signal(false);
 
   registerForm = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(8), 
+      // Added a pattern for password complexity as it's a good practice
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/)
+    ]],
     passwordVerify: ['', [Validators.required]]
   }, { 
     validators: matchValidator('password', 'passwordVerify') 
@@ -171,6 +176,16 @@ export class RegisterComponents {
 
   get f() {
     return this.registerForm.controls;
+  }
+
+  /**
+   * Checks if a form control should display validation errors.
+   * A control is considered invalid for display if it's invalid and has been touched or dirtied.
+   * @param control The AbstractControl to check.
+   * @returns True if the control should display errors, false otherwise.
+   */
+  isFieldInvalid(control: AbstractControl): boolean {
+    return control.invalid && (control.dirty || control.touched);
   }
 
   onSubmit() {
