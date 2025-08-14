@@ -1,0 +1,164 @@
+<div class="p-4 flex flex-col items-center">
+  <h2 class="text-2xl font-semibold mb-4 text-center">Dialog Content</h2>
+  <p class="mb-4 text-center">
+    This dynamic dialog allows you to edit data passed from the parent, no matter how many properties it has.
+  </p>
+
+  <p class="mb-4 p-3 bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg shadow-sm w-full max-w-md text-center border border-blue-200 dark:border-blue-700">
+    <strong>Initial Message:</strong> {{ initialMessage() }}
+  </p>
+
+  <div class="mb-6 w-full max-w-lg p-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <h3 class="text-xl font-semibold mb-4 text-center col-span-full text-gray-800 dark:text-gray-100">User Details (Editable)</h3>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="userName" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name:</label>
+      <input
+        id="userName"
+        type="text"
+        pInputText
+        [(ngModel)]="_userName"
+        placeholder="Enter your name"
+        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200"
+      />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="userEmail" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email:</label>
+      <input
+        id="userEmail"
+        type="email"
+        pInputText
+        [(ngModel)]="_userEmail"
+        placeholder="Enter your email"
+        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200"
+      />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="selectedCategory" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category:</label>
+      <p-autoComplete
+        id="selectedCategory"
+        [(ngModel)]="_selectedCategory"
+        [suggestions]="_filteredCategories()"
+        (completeMethod)="filterCategories($event)"
+        field="name"
+        placeholder="Select a Category"
+        [dropdown]="true"
+        class="w-full p-fluid"
+      ></p-autoComplete>
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="startDate" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Start Date:</label>
+      <p-datepicker
+        id="startDate"
+        [(ngModel)]="_startDate"
+        [showIcon]="true"
+        [touchUI]="true"
+        dateFormat="mm/dd/yy"
+        placeholder="Select a date"
+        class="w-full"
+        inputStyleClass="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200"
+      ></p-datepicker>
+    </div>
+
+    <div class="col-span-full">
+      <label for="description" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Description:</label>
+      <textarea
+        id="description"
+        [(ngModel)]="_description"
+        [rows]="3"
+        [cols]="30"
+        placeholder="Enter a description..."
+        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200"
+        [autoResize]="true"
+        pTextarea
+      ></textarea>
+    </div>
+
+    <div class="col-span-full">
+      <label for="tags" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Tags:</label>
+      <p-multiSelect
+        id="tags"
+        [options]="_availableTags()"
+        [(ngModel)]="_tags"
+        optionLabel="name"
+        placeholder="Select Tags"
+        [filter]="false"
+        class="w-full p-fluid"
+        display="chip"
+      ></p-multiSelect>
+    </div>
+
+    <div class="flex items-center mt-6 col-span-full">
+      <p-checkbox
+        [(ngModel)]="_isSubscribed"
+        inputId="subscribed"
+        [binary]="true"
+        class="mr-2"
+      ></p-checkbox>
+      <label for="subscribed" class="text-sm font-medium text-gray-700 dark:text-gray-300">Subscribe to newsletter</label>
+    </div>
+  </div>
+
+  <div class="mb-6 w-full max-w-lg p-5 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+    <h3 class="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-100">Product List (Static Example)</h3>
+    <p-table [value]="products()" [tableStyle]="{'min-width': '20rem'}" class="p-datatable-gridlines">
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-100 dark:bg-gray-700">
+          <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200 rounded-tl-lg">ID</th>
+          <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200">Product</th>
+          <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-200 rounded-tr-lg">Price</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-product>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+          <td class="p-3">{{ product.id }}</td>
+          <td class="p-3">{{ product.product }}</td>
+          <td class="p-3">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="mb-6 w-full max-w-md p-5 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-inner border border-gray-200 dark:border-gray-600">
+    <h3 class="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-100">Additional Information</h3>
+    <p class="text-gray-700 dark:text-gray-300 text-justify leading-relaxed">
+      This section can display any static text or instructions relevant to the dialog's purpose.
+      It's perfect for guidelines, disclaimers, or detailed explanations.
+      The content can be customized dynamically by passing different text via the `data` property from the parent component.
+    </p>
+  </div>
+
+  <div class="mb-6 w-full max-w-xs">
+    <label for="responseMessage" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Your Feedback (Optional):</label>
+    <textarea
+      id="responseMessage"
+      [(ngModel)]="responseMessage"
+      [rows]="3"
+      [cols]="30"
+      placeholder="Type your feedback here..."
+      class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200"
+      [autoResize]="true"
+      pTextarea
+    ></textarea>
+  </div>
+
+  <div class="flex gap-4">
+    <p-button
+      label="Save Changes"
+      (onClick)="confirmAndSend()"
+      icon="pi pi-check"
+      [loading]="processing()"
+      class="p-button-success p-button-raised p-button-rounded shadow-md hover:shadow-lg transition-shadow duration-300"
+    ></p-button>
+    <p-button
+      label="Cancel"
+      (onClick)="cancel()"
+      icon="pi pi-times"
+      class="p-button-danger p-button-raised p-button-rounded shadow-md hover:shadow-lg transition-shadow duration-300"
+    ></p-button>
+  </div>
+  <p-toast></p-toast>
+</div>

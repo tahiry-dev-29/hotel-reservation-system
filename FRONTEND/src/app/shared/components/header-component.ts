@@ -37,12 +37,12 @@ import { ButtonModule } from 'primeng/button';
 
         <div class="hidden md:flex items-center space-x-2 pr-2">
           <p-button
-            label="Connexion"
+            label="Login"
             styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50"
             routerLink="/login"
           ></p-button>
           <p-button
-            label="S'inscrire"
+            label="Sign Up"
             styleClass="p-button-raised p-button-sm"
             routerLink="/register" [rounded]="true"
           ></p-button>
@@ -77,12 +77,12 @@ import { ButtonModule } from 'primeng/button';
             <hr class="my-2 w-full border-surface-200/80 dark:border-surface-700/80" />
             <div class="w-full flex flex-col space-y-2">
                <p-button
-                label="Connexion"
+                label="Login"
                 styleClass="p-button-text w-full text-surface-700 dark:text-surface-300"
                 routerLink="/login" (onClick)="toggleMobileMenu()"
               ></p-button>
               <p-button
-                label="S'inscrire"
+                label="Sign Up"
                 styleClass="p-button-raised w-full"
                 routerLink="/register" (onClick)="toggleMobileMenu()"
               ></p-button>

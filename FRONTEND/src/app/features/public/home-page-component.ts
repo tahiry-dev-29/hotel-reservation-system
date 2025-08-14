@@ -36,8 +36,6 @@ import { ScrollHide } from '../../shared/directives/scroll-hide';
           [title]="item.title"
           [content]="item.content"
           [imageUrl]="item.imageUrl"
-          [isFavorite]="item.isFavorite"
-          (favoriteToggled)="onFavoriteToggle($event, item.id)"
         >
         </app-dynamic-card>
         } @empty {
@@ -170,17 +168,4 @@ export class HomePageComponent {
     this.filters.set(filters);
   }
 
-  /**
-   * Toggles the favorite status of an item.
-   * Updates the allItems signal to reflect the new favorite status.
-   * @param isFavorite The new favorite status (boolean).
-   * @param id The ID of the item to update.
-   */
-  onFavoriteToggle(isFavorite: boolean, id: number) {
-    this.allItems.update(items =>
-      items.map(item =>
-        item.id === id ? { ...item, isFavorite: isFavorite } : item
-      )
-    );
-  }
 }
