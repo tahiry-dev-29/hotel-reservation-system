@@ -1,166 +1,128 @@
-<div class="p-6 flex flex-col items-center bg-gray-50 dark:bg-gray-900 rounded-lg shadow-inner w-full">
-  <h2 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Réservez votre séjour 🏨</h2>
+<div class="p-6 flex flex-col items-center bg-theme shadow-inner w-full">
+  <h2 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Book Your Stay 🏨</h2>
   <p class="mb-6 text-center text-gray-700 dark:text-gray-300 max-w-2xl leading-relaxed">
-    Veuillez fournir les informations nécessaires pour compléter votre demande de réservation.
+    Please provide the necessary information to complete your reservation request.
   </p>
 
-  <div class="mb-8 p-4 bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg shadow-md w-full max-w-3xl text-center border border-blue-200 dark:border-blue-700">
-    <strong class="font-semibold">Message Initial :</strong> {{ initialMessage() }}
+  <div
+    class="mb-8 p-4 custome-border rounded-lg shadow-md w-full max-w-3xl text-center border border-blue-200 dark:border-blue-700">
+    <strong class="font-semibold">Initial Message:</strong> {{ initialMessage() }}
   </div>
 
-  <div class="mb-8 w-full max-w-3xl p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <h3 class="text-2xl font-semibold mb-4 text-center col-span-full text-gray-800 dark:text-gray-100">Vos Détails (Modifiable)</h3>
+  <div class="mb-8 w-full max-w-3xl p-6 custome-border grid grid-cols-1 md:grid-cols-2 gap-6">
+    <h3 class="text-2xl font-semibold mb-4 text-center col-span-full text-gray-800 dark:text-gray-100">Your Details
+      (Editable)</h3>
 
     <div class="col-span-full sm:col-span-1">
-      <label for="userName" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Nom complet :</label>
-      <input
-        id="userName"
-        type="text"
-        pInputText
-        [(ngModel)]="_userName"
-        placeholder="Entrez votre nom"
-        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      />
+      <label for="userName" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Full Name:</label>
+      <input id="userName" type="text" pInputText [(ngModel)]="_userName" placeholder="Enter your name"
+        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
     </div>
 
     <div class="col-span-full sm:col-span-1">
-      <label for="userEmail" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email :</label>
-      <input
-        id="userEmail"
-        type="email"
-        pInputText
-        [(ngModel)]="_userEmail"
-        placeholder="Entrez votre email"
-        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      />
+      <label for="userEmail" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email:</label>
+      <input id="userEmail" type="email" pInputText [(ngModel)]="_userEmail" placeholder="Enter your email"
+        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
     </div>
 
     <div class="col-span-full sm:col-span-1">
-      <label for="selectedCategory" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Catégorie :</label>
-      <p-autoComplete
-        id="selectedCategory"
-        [(ngModel)]="_selectedCategory"
-        [suggestions]="_filteredCategories()"
-        (completeMethod)="filterCategories($event)"
-        field="name"
-        placeholder="Sélectionnez une catégorie"
-        [dropdown]="true"
+      <label for="selectedCategory"
+        class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category:</label>
+      <p-autoComplete id="selectedCategory" [(ngModel)]="_selectedCategory" [suggestions]="_filteredCategories()"
+        (completeMethod)="filterCategories($event)" field="name" placeholder="Select a category" [dropdown]="true"
         class="w-full p-fluid"
-        inputStyleClass="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      ></p-autoComplete>
+        inputStyleClass="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"></p-autoComplete>
     </div>
 
     <div class="col-span-full sm:col-span-1">
-      <label for="startDate" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date d'arrivée :</label>
-      <p-datepicker
-        id="startDate"
-        [(ngModel)]="_startDate"
-        [showIcon]="true"
-        [touchUI]="true"
-        dateFormat="dd/mm/yy"
-        placeholder="Sélectionnez une date"
-        class="w-full p-fluid"
-        inputStyleClass="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      ></p-datepicker>
+      <label for="startDate" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Arrival
+        Date:</label>
+      <p-datepicker id="startDate" [(ngModel)]="_startDate" [showIcon]="true" [showButtonBar]="true" showIcon
+        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="Select a date" class="w-full p-fluid"></p-datepicker>
     </div>
 
     <div class="col-span-full">
-      <label for="description" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Message / Requête Spéciale :</label>
-      <textarea
-        id="description"
-        [(ngModel)]="_description"
-        [rows]="4"
-        [cols]="30"
-        placeholder="Dites-nous si vous avez des requêtes spéciales ou des questions..."
+      <label for="description" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Message / Special
+        Request:</label>
+      <textarea id="description" [(ngModel)]="_description" [rows]="4" [cols]="30"
+        placeholder="Tell us if you have any special requests or questions..."
         class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-        [autoResize]="true"
-        pTextarea
-      ></textarea>
+        [autoResize]="true" pTextarea></textarea>
     </div>
 
     <div class="col-span-full">
-      <label for="tags" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Services Souhaités :</label>
-      <p-multiSelect
-        id="tags"
-        [options]="_availableTags()"
-        [(ngModel)]="_tags"
-        optionLabel="name"
-        placeholder="Sélectionnez des services supplémentaires"
-        [filter]="false"
-        class="w-full p-fluid"
-        display="chip"
-        panelStyleClass="shadow-md rounded-lg"
-      ></p-multiSelect>
+      <label for="tags" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Desired
+        Services:</label>
+      <p-multiSelect id="tags" [options]="_availableTags()" [(ngModel)]="_tags" optionLabel="name"
+        placeholder="Select additional services" [filter]="false" class="w-full p-fluid" display="chip"
+        panelStyleClass="shadow-md rounded-lg"></p-multiSelect>
     </div>
 
     <div class="flex items-center mt-4 col-span-full">
-      <p-checkbox
-        [(ngModel)]="_isSubscribed"
-        inputId="subscribed"
-        [binary]="true"
-        class="mr-3"
-      ></p-checkbox>
-      <label for="subscribed" class="text-base font-medium text-gray-700 dark:text-gray-300">Abonnez-vous à notre newsletter pour les offres exclusives</label>
+      <p-checkbox [(ngModel)]="_isSubscribed" inputId="subscribed" [binary]="true" class="mr-3"></p-checkbox>
+      <label for="subscribed" class="text-base font-medium text-gray-700 dark:text-gray-300">Subscribe to our newsletter
+        for exclusive offers</label>
     </div>
   </div>
 
-  <div class="mb-8 w-full max-w-3xl p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
-    <h3 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-100">Services Additifs (Exemple)</h3>
-    <p-table [value]="products()" [tableStyle]="{'min-width': '25rem'}" class="p-datatable-gridlines p-datatable-striped rounded-lg overflow-hidden">
-      <ng-template pTemplate="header">
-        <tr class="bg-blue-50 dark:bg-blue-900">
-          <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tl-lg">ID</th>
-          <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200">Service</th>
-          <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tr-lg">Prix</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-product>
-        <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
-          <td class="p-4">{{ product.id }}</td>
-          <td class="p-4">{{ product.product }}</td>
-          <td class="p-4">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <!-- Added mt-8 for top margin and mb-8 for bottom margin on the accordion itself -->
+  <p-accordion [(value)]="activePanel" class="w-full max-w-3xl mt-8 mb-8">
+    <app-dynamic-accordion-panel [value]="'0'" [header]="'Additional Services (Example)'">
+      <!-- Added p-6 for padding inside the accordion panel -->
+      <div class="p-6">
+          <!-- Removed mb-8 from this div as the parent now has proper padding -->
+          <div class="w-full overflow-x-auto">
+            <p-table [value]="products()" [tableStyle]="{'min-width': '25rem'}"
+              class="p-datatable-gridlines p-datatable-striped rounded-lg overflow-hidden">
+              <ng-template pTemplate="header">
+                <tr class="">
+                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tl-lg">ID</th>
+                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200">Service</th>
+                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tr-lg">Price</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-product>
+                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+                  <td class="p-4">{{ product.id }}</td>
+                  <td class="p-4">{{ product.product }}</td>
+                  <td class="p-4">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+      </div>
+    </app-dynamic-accordion-panel>
+  </p-accordion>
 
-  <div class="mb-8 w-full max-w-3xl p-6 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900 dark:to-emerald-900 rounded-xl shadow-lg border-l-4 border-teal-500 dark:border-teal-700">
-    <h3 class="text-2xl font-semibold mb-4 text-center text-teal-800 dark:text-teal-200">Informations Importantes</h3>
+
+  <div
+    class="mb-8 w-full max-w-3xl p-6 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900 dark:to-emerald-900 rounded-xl shadow-lg border-l-4 border-teal-500 dark:border-teal-700">
+    <h3 class="text-2xl font-semibold mb-4 text-center text-teal-800 dark:text-teal-200">Important Information</h3>
     <p class="text-gray-700 dark:text-gray-300 text-justify leading-relaxed">
-      Cette section fournit des informations statiques ou des instructions importantes concernant le processus de réservation.
-      Elle est idéale pour des lignes directrices, des clauses de non-responsabilité ou des explications détaillées.
-      Le contenu peut être personnalisé dynamiquement en transmettant des données via la propriété `data` du composant parent.
+      This section provides static text or important instructions regarding the reservation process.
+      It's perfect for guidelines, disclaimers, or detailed explanations.
+      The content can be customized dynamically by passing different text via the `data` property from the parent
+      component.
     </p>
   </div>
 
   <div class="mb-8 w-full max-w-lg">
-    <label for="responseMessage" class="block text-base font-medium mb-2 text-gray-700 dark:text-gray-300">Votre Feedback (Optionnel) :</label>
-    <textarea
-      id="responseMessage"
-      [(ngModel)]="responseMessage"
-      [rows]="4"
-      [cols]="30"
-      placeholder="Entrez votre feedback ici..."
+    <label for="responseMessage" class="block text-base font-medium mb-2 text-gray-700 dark:text-gray-300">Your Feedback
+      (Optional):</label>
+    <textarea id="responseMessage" [(ngModel)]="responseMessage" [rows]="4" [cols]="30"
+      placeholder="Type your feedback here..."
       class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      [autoResize]="true"
-      pTextarea
-    ></textarea>
+      [autoResize]="true" pTextarea></textarea>
   </div>
 
   <div class="flex gap-4 justify-center w-full max-w-lg">
-    <p-button
-      label="Confirmer la Réservation"
-      (onClick)="confirmAndSend()"
-      icon="pi pi-check"
-      [loading]="processing()"
-      class="p-button-success p-button-raised p-button-rounded shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1"
-    ></p-button>
-    <p-button
-      label="Annuler"
-      (onClick)="cancel()"
-      icon="pi pi-times"
-      class="p-button-danger p-button-raised p-button-rounded shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1"
-    ></p-button>
+    <app-button buttonText="Confirm Reservation" (buttonClick)="confirmAndSend()" icon="pi pi-check mr-2"
+      [loading]="processing()" [severity]="'success'"
+      [btnStyle]="'p-button-raised shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1'"
+      variant="outlined"></app-button>
+    <app-button buttonText="Cancel" (buttonClick)="cancel()" icon="pi pi-times mr-2" [severity]="'danger'"
+      [btnStyle]="'p-button-raised shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1'"
+      variant="outlined"></app-button>
   </div>
   <p-toast></p-toast>
 </div>

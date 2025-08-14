@@ -8,10 +8,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { TextareaModule } from 'primeng/textarea'; // Updated import from InputTextareaModuleCalendarModule
+import { TextareaModule } from 'primeng/textarea';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CurrencyPipe } from '@angular/common';
+import { ButtonComponent } from "./button-component";
+import { AccordionModule } from 'primeng/accordion';
+import { DynamicAccordionPanelComponent } from "./dynamic-accordion-panel-component";
 
 interface Product {
   id: number;
@@ -54,8 +57,11 @@ interface FormData {
     ToastModule,
     MultiSelectModule,
     DatePickerModule,
-    CurrencyPipe
-  ],
+    CurrencyPipe,
+    ButtonComponent,
+    AccordionModule,
+    DynamicAccordionPanelComponent
+],
   providers: [MessageService]
 })
 export class CustomDynamiqueDialogComponent implements OnInit {
@@ -74,6 +80,7 @@ export class CustomDynamiqueDialogComponent implements OnInit {
   _filteredCategories = signal<Category[]>([]);
 
   responseMessage = signal<string>('');
+  activePanel = signal<string[] | number>(['0']);
 
   products = signal<Product[]>([
     { id: 101, product: 'Gaming Keyboard', price: 99.99 },
