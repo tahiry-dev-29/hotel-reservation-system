@@ -21,13 +21,12 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   template: `
     <div class="flex justify-center w-full max-w-md mx-auto" [class]="height()">
       <div class="relative w-full h-full">
-        <p-iconfield iconposition="left" class="h-full">
+        <p-iconfield iconposition="left" class="h-full flex! items-center! w-full!">
           <!-- p-inputicon takes full height to allow vertical centering of its content -->
-          <p-inputicon class="flex items-center justify-center">
+          <p-inputicon class="flex items-center">
             @if (isLoading()) {
               <p-progress-spinner strokeWidth="4" fill="transparent" animationDuration=".9s" [style]="{ width: '1.25rem', height: '1.25rem'}" />
-            }
-            @if (progressspinner()) {
+            }@else if (progressspinner()) {
               <!-- Using searchIconClass() for the search icon as it's semantically correct -->
               <i class="pi pi-search text-gray-400" [class]="searchIconClass()"></i>
             }
