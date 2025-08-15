@@ -31,6 +31,16 @@ public class FileSystemStorageService implements StorageService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String store(MultipartFile file) {
+        // Handle empty file explicitly if it's optional for the caller.
+        // If file is empty, we consider it as no new file to store.
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        return saveFile(file);
+    }
+
     private String saveFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("Failed to store empty file.");

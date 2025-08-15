@@ -4,8 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue; // Import for @GeneratedValue
-import jakarta.persistence.GenerationType; // Import for GenerationType
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -30,27 +30,26 @@ import java.util.List;
  */
 @Entity
 @Table(name = "users")
-@Data // Generates getters, setters, toString, equals, and hashCode methods
-@NoArgsConstructor // Generates a no-argument constructor
-@AllArgsConstructor // Generates an all-argument constructor (useful for JPA and tests)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
-    @Id // Marks this field as the primary key
-    // Instructs JPA to generate the ID automatically using a UUID strategy
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, unique = true) // Maps to 'id' column, ensures it's not null and unique
+    @Column(name = "id", nullable = false, unique = true)
     private String id;
 
-    @NotNull(message = "Le nom est obligatoire.") // Ensures the full name is not null
-    @Column(name = "full_name", nullable = false) // Maps to 'full_name' column
+    @NotNull(message = "Le nom est obligatoire.")
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @NotNull(message = "L'adresse email est obligatoire.") // Ensures the email is not null
-    @Email(message = "L'adresse email doit être valide.") // Ensures the email format is valid
-    @Column(name = "mail", nullable = false, unique = true) // Maps to 'mail' column, must be unique
+    @NotNull(message = "L'adresse email est obligatoire.")
+    @Email(message = "L'adresse email doit être valide.")
+    @Column(name = "mail", nullable = false, unique = true)
     private String mail;
 
-    @NotNull(message = "Le mot de passe est obligatoire.") 
+    @NotNull(message = "Le mot de passe est obligatoire.")
     @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères.")
     @Column(name = "password", nullable = false)
     private String password;
@@ -60,6 +59,9 @@ public class User implements UserDetails {
 
     @Column(name = "online", nullable = false)
     private boolean online;
+
+    @Column(name = "phone") // New phone field, optional by default
+    private String phone;
 
     /**
      * Enum for user roles: ADMIN, EDITOR, VIEWER.
@@ -76,11 +78,9 @@ public class User implements UserDetails {
     private ROLE role;
 
     // --- UserDetails interface methods ---
-    // These methods are crucial for Spring Security and cannot be removed by Lombok directly
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Returns a single authority based on the user's ROLE, prefixed with "ROLE_"
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
@@ -91,27 +91,26 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        // The email is used as the username for authentication
         return mail;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Account is always non-expired by default
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Account is never locked by default
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Credentials are always non-expired by default
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // User is always enabled by default
+        return true;
     }
 }

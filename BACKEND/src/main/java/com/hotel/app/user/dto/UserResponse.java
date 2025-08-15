@@ -10,11 +10,12 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class UserInfo {
+public class UserResponse {
     private String id;
     private String fullName;
     private String mail;
     private String imageUrl;
     private boolean online;
+    private String phone;
     private User.ROLE role;
 }

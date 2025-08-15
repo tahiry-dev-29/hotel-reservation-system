@@ -11,7 +11,7 @@ import lombok.Data;
  * Contains user details needed to create a new account, without the role field for security reasons.
  */
 @Data
-@Builder // Lombok annotation to provide a builder pattern for object creation
+@Builder
 public class UserRegistrationRequest {
 
     @NotNull(message = "Le nom est obligatoire.")
@@ -25,9 +25,7 @@ public class UserRegistrationRequest {
     @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères.")
     private String password;
 
-    // imageUrl is optional, so no @NotNull here
-    private String imageUrl;
+    private String imageUrl; // Optional
 
-    // IMPORTANT: The 'role' field is removed from here for security.
-    // Roles should be assigned by the system or an authorized admin.
+    private String phone; // New optional phone field
 }
