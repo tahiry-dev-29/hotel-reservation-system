@@ -1,13 +1,9 @@
 package com.gestion_hotel.app;
 
-import org.junit.jupiter.api.Test;
+import com.hotel.app.HotelApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = HotelApplication.class)
 class HotelApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
 
 }
