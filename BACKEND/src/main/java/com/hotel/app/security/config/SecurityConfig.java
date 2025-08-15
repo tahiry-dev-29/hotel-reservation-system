@@ -39,6 +39,8 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/**",
             "/webjars/**",
+            // You might need to add paths for serving static image files here if they are in 'uploads' and accessed directly
+            // e.g., "/uploads/**" if you configure a resource handler in Spring MVC.
     };
 
     @Bean
@@ -49,8 +51,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/api/users/**").authenticated() // User Management
-                        // Customer Management: Only ADMIN or EDITOR can access customer endpoints
-                        .requestMatchers("/api/customers/**").hasAnyRole("ADMIN", "EDITOR") // All customer paths
+                        .requestMatchers("/api/customers/**").hasAnyRole("ADMIN", "EDITOR") // Customer Management
+                        // Room Management:
+                        // GET /api/rooms and /api/rooms/{id} can be viewed by all authenticated users (ADMIN, EDITOR, VIEWER)
+                        .requestMatchers("/api/rooms").hasAnyRole("ADMIN", "EDITOR", "VIEWER")
+                        .requestMatchers("/api/rooms/{id}").hasAnyRole("ADMIN", "EDITOR", "VIEWER")
+                        // Other room operations are restricted by @PreAuthorize
+                        .requestMatchers("/api/rooms/**").authenticated() // All other /api/rooms paths require authentication
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
