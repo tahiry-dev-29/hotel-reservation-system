@@ -184,7 +184,6 @@ public class RoomServiceImlp implements RoomService {
         if (!roomRepository.existsById(id)) {
             throw new EntityNotFoundException("Chambre non trouvée avec l'ID: " + id);
         }
-        // TODO: Optionally, implement logic to delete associated image files from storage here
         roomRepository.deleteById(id);
     }
 
