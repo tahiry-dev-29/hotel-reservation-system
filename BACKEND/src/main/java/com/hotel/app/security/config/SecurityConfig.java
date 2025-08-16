@@ -5,14 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager; // Import ProviderManager
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService; // Keep for parameter type
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,38 +21,34 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.hotel.app.security.filters.JwtAuthenticationFilter;
-import com.hotel.app.user.service.UserDetailsServiceImpl; // Keep import for bean definition
-import com.hotel.app.customer.service.CustomerUserDetailsService; // Keep import for bean definition
-import com.hotel.app.security.service.DelegatingUserDetailsService; // Import the new delegating service
-
+import com.hotel.app.user.service.UserDetailsServiceImpl;
+import com.hotel.app.customer.service.CustomerUserDetailsService;
+import com.hotel.app.security.service.DelegatingUserDetailsService;
 
 import java.util.Arrays;
-import java.util.List; // Import List
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // IMPORTANT: Enable method-level security with @PreAuthorize
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    // We now inject the specific UserDetailsService implementations for the DaoAuthenticationProviders.
-    // They are no longer directly injected into SecurityConfig's constructor for use in the filter,
-    // but rather explicitly passed to their respective DaoAuthenticationProvider beans.
-    private final UserDetailsServiceImpl userDetailsServiceImpl; // Inject staff UserDetailsService
-    private final CustomerUserDetailsService customerUserDetailsService; // Inject customer UserDetailsService
-
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final CustomerUserDetailsService customerUserDetailsService;
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
-            // Public endpoints for staff authentication (register/login)
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/**",
-            // Public endpoints for customer authentication (register/login)
             "/api/customer-auth/register",
             "/api/customer-auth/login",
-            "/api/customer-auth/**", // All customer auth paths are public
+            "/api/customer-auth/**",
+            // Public access for viewing rooms
+            "/api/rooms",          // Allow GET all rooms publicly
+            "/api/rooms/*",        // Allow GET single room publicly
             "/webjars/**",
             // You might need to add paths for serving static image files here if they are in 'uploads' and accessed directly
             // e.g., "/uploads/**" if you configure a resource handler in Spring MVC.
@@ -65,25 +60,37 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/api/users/**").authenticated() // User Management (staff)
-                        // Customer Management (staff can manage all customers, customers manage their own)
-                        // We will add specific @PreAuthorize rules in the CustomerController for customer's own access.
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // All defined public endpoints are allowed
+                        // User Management (staff roles only - ADMIN, EDITOR)
+                        // Specific permissions handled by @PreAuthorize in UserController
+                        .requestMatchers("/api/users/**").authenticated() 
+                        
+                        // Customer Management:
+                        // Staff (ADMIN, EDITOR) can manage all customers.
+                        // Customers (CUSTOMER) can read/update their own profile via @PreAuthorize in CustomerController.
                         .requestMatchers("/api/customers/**").authenticated()
-                        .requestMatchers("/api/rooms").hasAnyRole("ADMIN", "EDITOR", "VIEWER") // View all rooms
-                        .requestMatchers("/api/rooms/{id}").hasAnyRole("ADMIN", "EDITOR", "VIEWER") // View single room
-                        .requestMatchers("/api/rooms/**").authenticated() // Other room operations protected by @PreAuthorize
-                        // Invoice Management (ADMIN, EDITOR, CUSTOMER for their own)
+
+                        // Room Management:
+                        // Other room operations (POST, PUT, DELETE, image management) require authentication and specific roles
+                        // GET /api/rooms and GET /api/rooms/{id} are handled by PUBLIC_ENDPOINTS.
+                        .requestMatchers("/api/rooms/**").authenticated() // All other /api/rooms paths require authentication
+
+                        // Invoice Management:
+                        // Staff (ADMIN, EDITOR) can manage all invoices.
+                        // Customers (CUSTOMER) can view their own invoices via @PreAuthorize in InvoiceController.
                         .requestMatchers("/api/invoices/**").authenticated()
-                        // Payment Management (ADMIN, EDITOR, CUSTOMER for their own)
+
+                        // Payment Management:
+                        // Staff (ADMIN, EDITOR) can manage all payments.
+                        // Customers (CUSTOMER) can view payments for their own invoices via @PreAuthorize in PaymentController.
                         .requestMatchers("/api/payments/**").authenticated()
-                        .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "EDITOR") // Inventory Management
-                        .anyRequest().authenticated())
+
+                        // Inventory Management (ADMIN, EDITOR only)
+                        .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "EDITOR")
+                        
+                        .anyRequest().authenticated()) // All other requests require authentication
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // The AuthenticationProvider is now configured via the composite AuthenticationManager bean below.
-                // This line is no longer needed as the AuthenticationManager handles the delegation.
-                // .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -94,12 +101,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(12);
     }
 
-    // Define multiple AuthenticationProviders for different UserDetailsService implementations
-    // These providers will be used by the AuthenticationManager for login (password authentication)
     @Bean
     public DaoAuthenticationProvider staffAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsServiceImpl); // Uses staff UserDetailsService
+        authProvider.setUserDetailsService(userDetailsServiceImpl);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -107,17 +112,14 @@ public class SecurityConfig {
     @Bean
     public DaoAuthenticationProvider customerAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customerUserDetailsService); // Uses customer UserDetailsService
+        authProvider.setUserDetailsService(customerUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
-    // Create a composite AuthenticationManager that tries multiple providers
-    // This AuthenticationManager is used for the /login endpoints
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
-        // Return a ProviderManager that can delegate to multiple DaoAuthenticationProviders
         return new ProviderManager(List.of(staffAuthenticationProvider(), customerAuthenticationProvider()));
     }
 
