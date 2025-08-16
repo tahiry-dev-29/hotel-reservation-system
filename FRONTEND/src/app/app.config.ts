@@ -6,7 +6,9 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './core/interceptors/auth-interceptor';
+import { CookieService } from 'ngx-cookie-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +25,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    CookieService
   ]
 };

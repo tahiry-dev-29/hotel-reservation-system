@@ -21,6 +21,9 @@ import { MainLayoutComponent } from './layouts/main-layout-component';
 import { LoginComponent } from './features/auth/login-component';
 import { RegisterComponents } from './features/auth/register-components';
 import { RoomDetailsPageComponents } from './features/rooms/pages/room-details-page.component';
+import { authGuard } from './core/guards/auth-guard';
+import { LoginCustomerComponent } from './features/customers/pages/login-customer-component';
+import { RegisterCustomerComponent } from './features/customers/pages/register-customer-component';
 
 
 export const routes: Routes = [
@@ -56,12 +59,12 @@ export const routes: Routes = [
       {
         path: 'login',
         title: 'Login',
-        component: LoginComponent,
+        component: LoginCustomerComponent,
       },
       {
         path: 'register',
         title: 'Register',
-        component: RegisterComponents,
+        component: RegisterCustomerComponent,
       },
     ],
   },
@@ -69,7 +72,23 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    // Le guard est ici pour protéger TOUTES les routes qui sont le tableau de bord
+    // Les pages login/register seront traitées par la logique interne du layout
     children: [
+      // Routes Login et Register pour Admin, maintenant enfants de 'admin'
+      {
+        path: 'login',
+        title: 'Admin Login',
+        component: LoginComponent,
+        // Pas de guard ici, car c'est la page de connexion pour les non-authentifiés
+      },
+      {
+        path: 'register',
+        title: 'Admin Register',
+        component: RegisterComponents,
+        // Pas de guard ici si l'enregistrement est public pour les admins.
+        // Si l'enregistrement n'est accessible qu'aux admins déjà connectés, remettre le guard.
+      },
       {
         path: '',
         redirectTo: 'dashboard',
@@ -79,10 +98,12 @@ export const routes: Routes = [
         path: 'dashboard',
         title: 'Dashboard',
         component: DashboardPageComponent,
+        canActivate: [authGuard], // Protéger la page dashboard elle-même
       },
       {
         path: 'users',
         title: 'Users Management',
+        canActivate: [authGuard], // Protéger cette branche
         children: [
           {
             path: 'list',
@@ -104,6 +125,7 @@ export const routes: Routes = [
       {
         path: 'rooms',
         title: 'Rooms Management',
+        canActivate: [authGuard], // Protéger cette branche
         children: [
           {
             path: 'list',
@@ -125,6 +147,7 @@ export const routes: Routes = [
       {
         path: 'customers',
         title: 'Customers Management',
+        canActivate: [authGuard], // Protéger cette branche
         children: [
           {
             path: 'list',
@@ -146,6 +169,7 @@ export const routes: Routes = [
       {
         path: 'employee',
         title: 'Employee Management',
+        canActivate: [authGuard], // Protéger cette branche
         children: [
           {
             path: 'list',
@@ -162,6 +186,7 @@ export const routes: Routes = [
       {
         path: 'checkout',
         title: 'Checkout Details',
+        canActivate: [authGuard], // Protéger cette branche
         children: [
           {
             path: 'list',

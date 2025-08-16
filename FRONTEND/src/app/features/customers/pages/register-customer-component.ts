@@ -1,20 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms'; // Import AbstractControl
 import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
-import { matchValidator } from '../validators/match-validator';
-import { RouterLink, Router } from '@angular/router'; // Router est injecté mais pas directement utilisé pour la navigation dans onSubmit
-import { ButtonComponent } from "../../shared/components/button-component";
-import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService, RegisterRequest } from '../../core/services/auth-service';
+import { RouterLink } from '@angular/router';
+import { ButtonComponent } from '../../../shared/components/button-component';
+import { matchValidator } from '../../validators/match-validator';
 
 @Component({
-  standalone: true,
-  selector: 'app-register',
+  selector: 'app-register-customer',
   imports: [
     ReactiveFormsModule,
     PasswordModule,
@@ -135,15 +132,10 @@ import { AuthService, RegisterRequest } from '../../core/services/auth-service';
             }
             </div>
           </div>
-          <!-- Affichage du message d'erreur de l'API -->
-           @if (errorMessage()) { 
-          <div class="h-5 overflow-hidden">
-            <p-message severity="error" variant="simple" size="small">{{ errorMessage() }}</p-message>
-          </div>}
           <app-button [loading]="loading()" [disabled]="registerForm.invalid || loading()"  [type]="'submit'" [buttonText]="'Sign Up'" [variant]="'outlined'"/>
         </form>
         <div class="text-sm text-center text-text-color-secondary">
-          Already have an account? <a routerLink="/admin/login" class="font-medium text-primary-500 hover:text-primary-600">Sign In</a>
+          Already have an account? <a routerLink="/login" class="font-medium text-primary-500 hover:text-primary-600">Sign In</a>
         </div>
       </div>
     </div>
@@ -165,70 +157,49 @@ import { AuthService, RegisterRequest } from '../../core/services/auth-service';
     }
   `]
 })
-export class RegisterComponents {
+export class RegisterCustomerComponent {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router); // Router est injecté mais pas directement utilisé pour la navigation dans onSubmit
 
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
 
   registerForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8), 
-      // Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/) // Si tu veux cette validation plus stricte
+    password: ['', [Validators.required, Validators.minLength(8)
+      // Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/)
     ]],
     passwordVerify: ['', [Validators.required]]
   }, { 
     validators: matchValidator('password', 'passwordVerify') 
   });
 
-  get f(): { [key: string]: AbstractControl } {
+  get f() {
     return this.registerForm.controls;
   }
 
+  /**
+   * Checks if a form control should display validation errors.
+   * A control is considered invalid for display if it's invalid and has been touched or dirtied.
+   * @param control The AbstractControl to check.
+   * @returns True if the control should display errors, false otherwise.
+   */
   isFieldInvalid(control: AbstractControl): boolean {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  onSubmit(): void {
+  onSubmit() {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
-      this.errorMessage.set(null);
       return;
     }
     
     this.loading.set(true);
-    this.errorMessage.set(null);
+    console.log('🎉 Registration in progress...', this.registerForm.value);
 
-    const registerRequest: RegisterRequest = {
-      fullName: this.registerForm.value.fullName as string,
-      mail: this.registerForm.value.email as string,
-      password: this.registerForm.value.password as string,
-      phone: undefined,
-      imageUrl: undefined,
-      role: 'VIEWER' // Rôle par défaut, à ajuster si le formulaire permet de choisir
-    };
-
-    this.authService.register(registerRequest).subscribe({
-      next: (response) => {
-        console.log('Registration successful, redirection handled by AuthService.');
-        this.loading.set(false);
-        alert('Registration successful! You can now log in.');
-        // Redirection est maintenant gérée par AuthService.setAuthData
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Registration failed:', err);
-        this.loading.set(false);
-        if (err.status === 409) {
-          this.errorMessage.set('An account with this email already exists.');
-        } else if (err.error && err.error.message) {
-          this.errorMessage.set(err.error.message);
-        } else {
-          this.errorMessage.set('An unexpected error occurred during registration.');
-        }
-      }
-    });
+    setTimeout(() => {
+      this.loading.set(false);
+      console.log('✅ Registration successful!', this.registerForm.value);
+      console.log('Registration successful! Check the console for the form data.');
+    }, 2000); 
   }
 }

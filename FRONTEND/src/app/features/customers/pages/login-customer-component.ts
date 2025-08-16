@@ -1,18 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms'; // Import AbstractControl
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
-import { ButtonComponent } from "../../shared/components/button-component";
-import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService, LoginRequest } from '../../core/services/auth-service';
+import { ButtonComponent } from '../../../shared/components/button-component';
 
 @Component({
-  standalone: true,
-  selector: 'app-login-page',
+  selector: 'app-login-customer-page',
   imports: [
     ButtonModule,
     InputTextModule,
@@ -68,15 +65,10 @@ import { AuthService, LoginRequest } from '../../core/services/auth-service';
             }
             </div>
           </div>
-          <!-- Affichage du message d'erreur de l'API -->
-           @if (errorMessage()) { 
-          <div  class="h-5 overflow-hidden">
-            <p-message severity="error" variant="simple" size="small">{{ errorMessage() }}</p-message>
-          </div>}
           <app-button [loading]="loading()" [disabled]="loginForm.invalid || loading()"  [type]="'submit'" [buttonText]="'Login'" [variant]="'outlined'"/>
         </form>
         <div class="text-sm text-center text-text-color-secondary">
-          Don't have an account? <a routerLink="/admin/register" class="font-medium text-primary-500 hover:text-primary-600">Sign Up</a>
+          Don't have an account? <a routerLink="/register" class="font-medium text-primary-500 hover:text-primary-600">Sign Up</a>
         </div>
       </div>
     </div>
@@ -98,59 +90,36 @@ import { AuthService, LoginRequest } from '../../core/services/auth-service';
     }
   `]
 })
-export class LoginComponent {
+export class LoginCustomerComponent {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router); // Router is injected but not directly used for navigation in onSubmit
 
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
     password: ['', [Validators.required]]
   });
 
-  get f(): { [key: string]: AbstractControl } {
+  get f() {
     return this.loginForm.controls;
   }
-
+  
   isFieldInvalid(control: AbstractControl): boolean {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  onSubmit(): void {
+  onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
-      this.errorMessage.set(null);
       return;
     }
     
     this.loading.set(true);
-    this.errorMessage.set(null);
+    console.log('Login in progress...', this.loginForm.value);
 
-    const loginRequest: LoginRequest = {
-      mail: this.loginForm.value.username as string,
-      password: this.loginForm.value.password as string
-    };
-
-    this.authService.login(loginRequest).subscribe({
-      next: (response) => {
-        console.log('Login successful, redirection handled by AuthService.');
-        this.loading.set(false);
-        // Redirection est maintenant gérée par AuthService.setAuthData
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Login failed:', err);
-        this.loading.set(false);
-        if (err.status === 401 || err.status === 403) {
-          this.errorMessage.set('Invalid username or password.');
-        } else if (err.error && err.error.message) {
-          this.errorMessage.set(err.error.message);
-        } else {
-          this.errorMessage.set('An unexpected error occurred during login.');
-        }
-      }
-    });
+    setTimeout(() => {
+      this.loading.set(false);
+      console.log('Login successful!', this.loginForm.value);
+    }, 2000); 
   }
 }
