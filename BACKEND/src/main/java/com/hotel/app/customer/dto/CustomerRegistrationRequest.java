@@ -1,7 +1,9 @@
 package com.hotel.app.customer.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,12 +15,16 @@ import lombok.Data;
 @Builder
 public class CustomerRegistrationRequest {
 
-    @NotNull(message = "Le nom complet est obligatoire.")
+    @NotBlank(message = "Le nom complet est obligatoire.")
     private String fullName;
 
-    @NotNull(message = "L'adresse email est obligatoire.")
+    @NotBlank(message = "L'adresse email est obligatoire.")
     @Email(message = "L'adresse email doit être valide.")
     private String mail;
+
+    @NotBlank(message = "Le mot de passe est obligatoire.")
+    @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères.")
+    private String password;
 
     private String phone; // Optional phone field
 

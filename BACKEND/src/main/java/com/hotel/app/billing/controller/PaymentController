@@ -1,0 +1,87 @@
+package com.hotel.app.billing.controller;
+
+import com.hotel.app.billing.dto.PaymentRequest;
+import com.hotel.app.billing.dto.PaymentResponse;
+import com.hotel.app.billing.service.PaymentService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * REST Controller for managing Payment CRUD operations.
+ */
+@RestController
+@RequestMapping("/api/payments") // Base path for payment management operations
+@RequiredArgsConstructor
+public class PaymentController {
+
+    private final PaymentService paymentService;
+
+    /**
+     * Creates a new payment for an invoice.
+     * Accessible by ADMIN or EDITOR.
+     * @param request The PaymentRequest DTO.
+     * @return A ResponseEntity containing the created PaymentResponse DTO and HTTP status CREATED.
+     */
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can record payments
+    public ResponseEntity<PaymentResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
+        PaymentResponse createdPayment = paymentService.createPayment(request);
+        return new ResponseEntity<>(createdPayment, HttpStatus.CREATED);
+    }
+
+    /**
+     * Retrieves a payment by its ID.
+     * Accessible by ADMIN or EDITOR.
+     * @param id The ID of the payment to retrieve.
+     * @return A ResponseEntity containing the PaymentResponse DTO.
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can view any payment
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable String id) {
+        PaymentResponse payment = paymentService.getPaymentById(id);
+        return ResponseEntity.ok(payment);
+    }
+
+    /**
+     * Retrieves all payments.
+     * Accessible by ADMIN or EDITOR.
+     * @return A ResponseEntity containing a list of PaymentResponse DTOs.
+     */
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can view all payments
+    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
+        List<PaymentResponse> payments = paymentService.getAllPayments();
+        return ResponseEntity.ok(payments);
+    }
+
+    /**
+     * Retrieves all payments for a specific invoice.
+     * Accessible by ADMIN or EDITOR.
+     * @param invoiceId The ID of the invoice.
+     * @return A ResponseEntity containing a list of PaymentResponse DTOs for the given invoice.
+     */
+    @GetMapping("/by-invoice/{invoiceId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can view payments by invoice
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByInvoiceId(@PathVariable String invoiceId) {
+        List<PaymentResponse> payments = paymentService.getPaymentsByInvoiceId(invoiceId);
+        return ResponseEntity.ok(payments);
+    }
+
+    /**
+     * Deletes a payment by its ID.
+     * Only accessible by ADMIN.
+     * @param id The ID of the payment to delete.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')") // Only ADMIN can delete payments
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePayment(@PathVariable String id) {
+        paymentService.deletePayment(id);
+    }
+}

@@ -69,7 +69,9 @@ public class User implements UserDetails {
     public enum ROLE {
         ADMIN, // Full administrative access, manages users and system settings
         EDITOR, // Can create, read, update specific data (e.g., manage bookings, rooms)
-        VIEWER // Can only read data (e.g., view room availability, own bookings)
+        VIEWER, // Can only read data (e.g., view room availability, own bookings)
+        CUSTOMER // External customer, can manage their own profile and bookings, view their invoices.
+
     }
 
     @NotNull(message = "Le rôle est obligatoire.")
