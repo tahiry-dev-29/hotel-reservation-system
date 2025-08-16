@@ -2,14 +2,18 @@ package com.hotel.app.billing.controller;
 
 import com.hotel.app.billing.dto.InvoiceRequest;
 import com.hotel.app.billing.dto.InvoiceResponse;
-import com.hotel.app.billing.mapper.InvoiceMapper; // Import InvoiceMapper
-import com.hotel.app.billing.model.Invoice; // Import Invoice entity
+import com.hotel.app.billing.mapper.InvoiceMapper;
+import com.hotel.app.billing.model.Invoice;
 import com.hotel.app.billing.service.InvoiceService;
+import com.hotel.app.customer.model.Customer; // Import Customer entity for auth
+import com.hotel.app.user.model.User; // Import User for auth
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +22,26 @@ import java.util.List;
  * REST Controller for managing Invoice CRUD operations.
  */
 @RestController
-@RequestMapping("/api/invoices") // Base path for invoice management operations
+@RequestMapping("/api/invoices")
 @RequiredArgsConstructor
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
-    private final InvoiceMapper invoiceMapper; // Inject InvoiceMapper
+    private final InvoiceMapper invoiceMapper;
+
+    /**
+     * Helper method to get the current authenticated user's ID.
+     * @return The ID of the authenticated user (staff or customer), or null if not authenticated.
+     */
+    private String getCurrentAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Customer) {
+            return ((Customer) authentication.getPrincipal()).getId();
+        } else if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return ((User) authentication.getPrincipal()).getId();
+        }
+        return null; // Should not happen with authenticated() in SecurityConfig for this path
+    }
 
     /**
      * Creates a new invoice.
@@ -40,16 +58,15 @@ public class InvoiceController {
 
     /**
      * Retrieves an invoice by its ID.
-     * Accessible by ADMIN or EDITOR.
+     * Accessible by ADMIN, EDITOR (any invoice) or the CUSTOMER if the invoice belongs to them.
      * @param id The ID of the invoice to retrieve.
      * @return A ResponseEntity containing the InvoiceResponse DTO.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can view any invoice
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR') or " +
+            "(hasRole('CUSTOMER') and @invoiceService.getInvoiceById(#id).customer.id == authentication.principal.id)")
     public ResponseEntity<InvoiceResponse> getInvoiceById(@PathVariable String id) {
-        // Fetch the Invoice ENTITY from the service
         Invoice invoice = invoiceService.getInvoiceById(id);
-        // Convert the Invoice ENTITY to an InvoiceResponse DTO using the mapper
         InvoiceResponse invoiceResponse = invoiceMapper.toInvoiceResponse(invoice);
         return ResponseEntity.ok(invoiceResponse);
     }
@@ -68,12 +85,12 @@ public class InvoiceController {
 
     /**
      * Retrieves all invoices for a specific customer.
-     * Accessible by ADMIN or EDITOR.
+     * Accessible by ADMIN, EDITOR (any customer's invoices) or the CUSTOMER himself (his own invoices).
      * @param customerId The ID of the customer.
      * @return A ResponseEntity containing a list of InvoiceResponse DTOs for the given customer.
      */
     @GetMapping("/by-customer/{customerId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can view invoices by customer
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR') or (#customerId == authentication.principal.id and hasRole('CUSTOMER'))")
     public ResponseEntity<List<InvoiceResponse>> getInvoicesByCustomerId(@PathVariable String customerId) {
         List<InvoiceResponse> invoices = invoiceService.getInvoicesByCustomerId(customerId);
         return ResponseEntity.ok(invoices);
@@ -101,8 +118,8 @@ public class InvoiceController {
      * @param newStatus The new status for the invoice (as a string, e.g., "PAID", "CANCELLED").
      * @return The updated InvoiceResponse DTO.
      */
-    @PatchMapping("/{invoiceId}/status") // Use PATCH for partial updates like status
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
+    @PatchMapping("/{invoiceId}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')") // Only ADMIN or EDITOR can update invoice status
     public ResponseEntity<InvoiceResponse> updateInvoiceStatus(@PathVariable String invoiceId,
                                                                @RequestBody String newStatus) {
         InvoiceResponse updatedInvoice = invoiceService.updateInvoiceStatus(invoiceId, newStatus);
@@ -116,7 +133,7 @@ public class InvoiceController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Only ADMIN can delete invoices
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204 No Content for successful deletion
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteInvoice(@PathVariable String id) {
         invoiceService.deleteInvoice(id);
     }
