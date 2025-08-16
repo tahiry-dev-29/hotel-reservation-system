@@ -36,7 +36,7 @@ public class RoomController {
     @PreAuthorize("hasRole('ADMIN')") // Only ADMIN can create rooms
     public ResponseEntity<RoomResponse> createRoom(
             @RequestPart("room") @Valid RoomRegistrationRequest request, // JSON part
-            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) { // Files part
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
         
         RoomResponse createdRoom = roomService.createRoom(request, imageFiles);
         return new ResponseEntity<>(createdRoom, HttpStatus.CREATED);
@@ -44,29 +44,26 @@ public class RoomController {
 
     /**
      * Retrieves a room by its ID.
-     * Accessible by ADMIN, EDITOR, or VIEWER (publicly visible if room isPublished).
+     * NOW PUBLICLY ACCESSIBLE (removed @PreAuthorize here, relying on SecurityConfig public path).
      * @param id The ID of the room.
-     * @return A ResponseEntity containing the RoomResponse DTO.
+     * @return RoomResponse DTO of the found room.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'VIEWER')") // All authenticated users can view rooms
+    // @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'VIEWER')") // REMOVED FOR PUBLIC ACCESS
     public ResponseEntity<RoomResponse> getRoomById(@PathVariable String id) {
         RoomResponse room = roomService.getRoomById(id);
-        // You might add logic here to check if isPublished is true for VIEWERs,
-        // or handle it in the service layer if it's a security requirement.
         return ResponseEntity.ok(room);
     }
 
     /**
      * Retrieves all rooms.
-     * Accessible by ADMIN, EDITOR, or VIEWER (publicly visible if room isPublished).
-     * @return A ResponseEntity containing a list of RoomResponse DTOs.
+     * NOW PUBLICLY ACCESSIBLE (removed @PreAuthorize here, relying on SecurityConfig public path).
+     * @return A list of RoomResponse DTOs.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'VIEWER')") // All authenticated users can view rooms
+    // @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR', 'VIEWER')") // REMOVED FOR PUBLIC ACCESS
     public ResponseEntity<List<RoomResponse>> getAllRooms() {
         List<RoomResponse> rooms = roomService.getAllRooms();
-        // Similarly, you might filter by isPublished here for VIEWERs.
         return ResponseEntity.ok(rooms);
     }
 
@@ -140,14 +137,14 @@ public class RoomController {
      * Sets a specific image as the thumbnail for a room.
      * Accessible by ADMIN or EDITOR.
      * @param roomId The ID of the room.
-     * @param thumbnailUrl The URL of the image to set as thumbnail (sent in request body).
-     * @return A ResponseEntity containing the updated RoomResponse DTO.
+     * @param thumbnailUrl The URL of the image to set as thumbnail.
+     * @return The updated RoomResponse DTO.
      */
     @PutMapping("/{roomId}/thumbnail")
     @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
     public ResponseEntity<RoomResponse> setRoomThumbnail(
             @PathVariable String roomId,
-            @RequestBody String thumbnailUrl) { // Expecting plain string in body
+            @RequestBody String thumbnailUrl) {
         
         RoomResponse updatedRoom = roomService.setRoomThumbnail(roomId, thumbnailUrl);
         return ResponseEntity.ok(updatedRoom);

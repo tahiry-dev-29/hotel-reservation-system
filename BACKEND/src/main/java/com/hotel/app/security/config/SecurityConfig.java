@@ -3,6 +3,7 @@ package com.hotel.app.security.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // Import HttpMethod
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -23,14 +24,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.hotel.app.security.filters.JwtAuthenticationFilter;
 import com.hotel.app.user.service.UserDetailsServiceImpl;
 import com.hotel.app.customer.service.CustomerUserDetailsService;
-import com.hotel.app.security.service.DelegatingUserDetailsService;
+import com.hotel.app.security.service.DelegatingUserDetailsService; // Ensure this is correctly injected in JwtAuthenticationFilter
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // IMPORTANT: Enable method-level security with @PreAuthorize
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -46,9 +47,10 @@ public class SecurityConfig {
             "/api/customer-auth/register",
             "/api/customer-auth/login",
             "/api/customer-auth/**",
-            // Public access for viewing rooms
+            // Public access for viewing rooms and checking availability
             "/api/rooms",          // Allow GET all rooms publicly
             "/api/rooms/*",        // Allow GET single room publicly
+            "/api/bookings/available-rooms", // Allow GET available rooms publicly
             "/webjars/**",
             // You might need to add paths for serving static image files here if they are in 'uploads' and accessed directly
             // e.g., "/uploads/**" if you configure a resource handler in Spring MVC.
@@ -62,28 +64,37 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // All defined public endpoints are allowed
                         // User Management (staff roles only - ADMIN, EDITOR)
-                        // Specific permissions handled by @PreAuthorize in UserController
                         .requestMatchers("/api/users/**").authenticated() 
                         
                         // Customer Management:
                         // Staff (ADMIN, EDITOR) can manage all customers.
-                        // Customers (CUSTOMER) can read/update their own profile via @PreAuthorize in CustomerController.
+                        // Customers (CUSTOMER) can read/update their own profile.
+                        // Specific permissions handled by @PreAuthorize in CustomerController.
                         .requestMatchers("/api/customers/**").authenticated()
 
                         // Room Management:
                         // Other room operations (POST, PUT, DELETE, image management) require authentication and specific roles
                         // GET /api/rooms and GET /api/rooms/{id} are handled by PUBLIC_ENDPOINTS.
-                        .requestMatchers("/api/rooms/**").authenticated() // All other /api/rooms paths require authentication
+                        .requestMatchers("/api/rooms/**").authenticated()
 
                         // Invoice Management:
                         // Staff (ADMIN, EDITOR) can manage all invoices.
-                        // Customers (CUSTOMER) can view their own invoices via @PreAuthorize in InvoiceController.
+                        // Customers (CUSTOMER) can view their own invoices.
+                        // Specific permissions handled by @PreAuthorize in InvoiceController.
                         .requestMatchers("/api/invoices/**").authenticated()
 
                         // Payment Management:
                         // Staff (ADMIN, EDITOR) can manage all payments.
-                        // Customers (CUSTOMER) can view payments for their own invoices via @PreAuthorize in PaymentController.
+                        // Customers (CUSTOMER) can view payments for their own invoices.
+                        // Specific permissions handled by @PreAuthorize in PaymentController.
                         .requestMatchers("/api/payments/**").authenticated()
+                        
+                        // Booking Management:
+                        // Staff (ADMIN, EDITOR) can manage all bookings.
+                        // Customers (CUSTOMER) can manage their own bookings.
+                        // GET /api/bookings/available-rooms is public.
+                        // Specific permissions handled by @PreAuthorize in BookingController.
+                        .requestMatchers("/api/bookings/**").authenticated()
 
                         // Inventory Management (ADMIN, EDITOR only)
                         .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "EDITOR")
