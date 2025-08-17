@@ -1,3 +1,4 @@
+// src/app/core/services/room-service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,14 +12,13 @@ export interface Capacity {
 
 // Defined as types (unions of string literals)
 export type RoomType = 'SINGLE' | 'DOUBLE' | 'SUITE' | 'FAMILY';
-export type ViewType = 'GARDEN' | 'SEA' | 'CITY' | 'MOUNTAIN' | 'NONE';
+export type ViewType = 'GARDEN' | 'SEA' | 'CITY' | 'MOUNTAIN' | 'NONE' | 'JARDIN'; // Added JARDIN to type
 export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'CLEANING';
 export type Amenity = 'WIFI' | 'TV' | 'AC' | 'MINIBAR' | 'BALCONY' | 'VIEW' | 'BATHTUB' | 'COFFEEMAKER';
 
 // --- Corresponding runtime constants for usage with dropdowns/autocompletes ---
-// These arrays provide the actual string values accessible at runtime for your types.
 export const ROOM_TYPES: RoomType[] = ['SINGLE', 'DOUBLE', 'SUITE', 'FAMILY'];
-export const VIEW_TYPES: ViewType[] = ['GARDEN', 'SEA', 'CITY', 'MOUNTAIN', 'NONE'];
+export const VIEW_TYPES: ViewType[] = ['GARDEN', 'SEA', 'CITY', 'MOUNTAIN', 'NONE', 'JARDIN'];
 export const ROOM_STATUSES: RoomStatus[] = ['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'CLEANING'];
 export const AMENITIES: Amenity[] = ['WIFI', 'TV', 'AC', 'MINIBAR', 'BALCONY', 'VIEW', 'BATHTUB', 'COFFEEMAKER'];
 
@@ -45,6 +45,28 @@ export interface Room {
   isPublished: boolean;
   internalNotes?: string;
 }
+
+// DTO for Room Creation Request (what the backend expects for creation)
+export interface RoomCreateRequest {
+  roomNumber: string;
+  title: string;
+  description: string;
+  roomType: RoomType;
+  capacity: Capacity;
+  sizeInSqMeters?: number; // Optional
+  floor?: number; // Optional
+  bedConfiguration: string;
+  viewType: ViewType;
+  basePrice: number;
+  weekendPrice?: number; // Optional
+  onSale: boolean;
+  salePrice?: number; // Optional
+  amenities?: Amenity[]; // Optional
+  roomStatus: RoomStatus;
+  isPublished: boolean;
+  internalNotes?: string; // Optional
+}
+
 
 // DTO for Room Update Request (what the backend expects for updates)
 export interface RoomUpdateRequest {
@@ -103,6 +125,22 @@ export class RoomService {
   }
 
   /**
+   * Creates a new room.
+   * @param roomCreateRequest The room creation DTO.
+   * @param imageFiles Optional array of image files to upload.
+   * @returns An Observable of the created Room object.
+   */
+  createRoom(roomCreateRequest: RoomCreateRequest, imageFiles: File[] = []): Observable<Room> {
+    const formData = new FormData();
+    formData.append('room', new Blob([JSON.stringify(roomCreateRequest)], { type: 'application/json' }));
+    imageFiles.forEach(file => {
+      formData.append('imageFiles', file, file.name); // Backend expects 'imageFiles' key for creation
+    });
+    return this.http.post<Room>(`${environment.apiUrl}/rooms`, formData);
+  }
+
+
+  /**
    * Updates an existing room.
    * @param id The ID of the room to update.
    * @param roomUpdateRequest The update request DTO.
@@ -111,12 +149,12 @@ export class RoomService {
    */
   updateRoom(id: string, roomUpdateRequest: RoomUpdateRequest, newImageFiles: File[] = []): Observable<Room> {
     const formData = new FormData();
-    formData.append('roomUpdateDto', new Blob([JSON.stringify(roomUpdateRequest)], { type: 'application/json' }));
+    formData.append('room', new Blob([JSON.stringify(roomUpdateRequest)], { type: 'application/json' }));
     newImageFiles.forEach(file => {
-      formData.append('newImages', file, file.name);
+      formData.append('newImageFiles', file, file.name);
     });
     // Assuming a PUT request for updates
-    return this.http.put<Room>(`${environment.apiUrl}/rooms/${id}`, formData);
+    return this.http.put<Room>(`${environment.apiUrl}/rooms/${id}`, formData); // Corrected endpoint if it's /api/rooms/{id}
   }
 
   /**
@@ -125,7 +163,7 @@ export class RoomService {
    * @returns An Observable representing the completion of the deletion.
    */
   deleteRoom(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/rooms/${id}`); // Assuming admin endpoint for deletion
+    return this.http.delete<void>(`${environment.apiUrl}/rooms/${id}`); // Corrected endpoint if it's /api/rooms/{id}
   }
 
   /**
@@ -144,7 +182,7 @@ export class RoomService {
   ): Observable<Room[]> {
     let params = new HttpParams()
       .set('checkInDate', checkInDate)
-      .set('checkOutDate', checkOutDate)
+      .set('checkOutDate', checkInDate) // Fixed: use checkOutDate
       .set('numAdults', numAdults.toString());
 
     if (numChildren !== undefined) {

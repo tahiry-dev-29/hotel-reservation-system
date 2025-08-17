@@ -1,3 +1,4 @@
+// src/main/java/com/hotel/app/room/dto/RoomUpdateRequest.java
 package com.hotel.app.room.dto;
 
 import com.hotel.app.room.model.Amenity;
@@ -7,7 +8,6 @@ import com.hotel.app.room.model.RoomType;
 import com.hotel.app.room.model.ViewType; // Import ViewType
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 
@@ -35,14 +35,14 @@ public class RoomUpdateRequest {
     private String bedConfiguration;
     private ViewType viewType; // Changed to ViewType enum
 
-    @Min(value = 0, message = "Le prix de base ne peut pas être négatif.")
+    @Min(value = 0, message = "Le prix de base ne peut pas être négative.")
     private Double basePrice;
 
-    @Min(value = 0, message = "Le prix week-end ne peut pas être négatif.")
+    @Min(value = 0, message = "Le prix week-end ne peut pas être négative.")
     private Double weekendPrice;
 
     private Boolean onSale;
-    @Min(value = 0, message = "Le prix promotionnel ne peut pas être négatif.")
+    @Min(value = 0, message = "Le prix promotionnel ne peut pas être négative.")
     private Double salePrice;
 
     // Image URLs are updated via separate upload endpoints, not here

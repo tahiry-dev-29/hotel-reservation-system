@@ -4,13 +4,14 @@ import com.hotel.app.room.model.Amenity;
 import com.hotel.app.room.model.Capacity;
 import com.hotel.app.room.model.RoomStatus;
 import com.hotel.app.room.model.RoomType;
+import com.hotel.app.room.model.ViewType; // Import ViewType enum
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * DTO for returning room information in API responses.
+ * DTO for returning Room information in API responses.
  */
 @Data
 @Builder
@@ -24,7 +25,7 @@ public class RoomResponse {
     private Integer sizeInSqMeters;
     private Integer floor;
     private String bedConfiguration;
-    private String viewType;
+    private ViewType viewType; // Changed to ViewType enum
     private Double basePrice;
     private Double weekendPrice;
     private Boolean onSale;

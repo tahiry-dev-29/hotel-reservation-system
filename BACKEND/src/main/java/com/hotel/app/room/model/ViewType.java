@@ -8,5 +8,6 @@ public enum ViewType { // Added ViewType enum
     SEA,
     CITY,
     MOUNTAIN,
-    NONE
+    NONE,
+    JARDIN
 }

@@ -4,6 +4,7 @@ import com.hotel.app.room.model.Amenity;
 import com.hotel.app.room.model.Capacity;
 import com.hotel.app.room.model.RoomStatus;
 import com.hotel.app.room.model.RoomType;
+import com.hotel.app.room.model.ViewType; // Import ViewType enum
 import jakarta.validation.Valid; // For validating nested objects
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -45,7 +46,7 @@ public class RoomRegistrationRequest {
     @NotBlank(message = "La configuration des lits est obligatoire.")
     private String bedConfiguration;
 
-    private String viewType;
+    private ViewType viewType; // Changed to ViewType enum
 
     @NotNull(message = "Le prix de base est obligatoire.")
     @Min(value = 0, message = "Le prix de base ne peut pas être négatif.")

@@ -15,40 +15,36 @@ import { ButtonComponent } from "./button-component";
 import { AccordionModule } from 'primeng/accordion';
 import { DynamicAccordionPanelComponent } from "./dynamic-accordion-panel-component";
 // Import Room-related interfaces and types from the correct path
-// We only import the types, not the runtime constants like ROOM_TYPES here,
-// as the options come via config.data.options directly.
 import { CurrencyPipe } from '@angular/common';
 import { RoomType, ViewType, Amenity, RoomStatus, Room, RoomUpdateRequest } from '../../core/services/room-service';
 
 @Component({
   selector: 'app-custome-dynamic-dialog',
   templateUrl: './custom-dynamic-dialog-component.html',
-  styles: `
-  :host ::ng-deep .p-inputnumber .p-inputtext {
-    width: 100%;
-  border-radius: 9999px; /* Tailwind rounded-full */
-}
-:host ::ng-deep .p-inputtextarea,
-:host ::ng-deep .p-inputtext,
-:host ::ng-deep .p-multiselect .p-multiselect-label,
-:host ::ng-deep .p-autocomplete .p-inputtext {
-  width: 100%;
-  border-radius: 0.5rem; /* Tailwind rounded-md */
-}
-:host ::ng-deep .p-floatlabel > .p-inputtext,
-:host ::ng-deep .p-floatlabel > .p-autocomplete,
-:host ::ng-deep .p-floatlabel > .p-multiselect,
-:host ::ng-deep .p-floatlabel > .p-inputnumber {
-  width: 100%;
-}
-:host ::ng-deep .p-inputnumber .p-button-group {
-  border-radius: 9999px; /* For rounded buttons on inputNumber */
-}
-:host ::ng-deep .p-multiselect {
-  /* Ensure the overall multiselect component is also rounded */
-  border-radius: 9999px;
-}
+  styles : `
+    :host ::ng-deep .p-inputtext {
+        border-radius: 9999px !important; 
+    }
+    
+    /* Styles for inputs that should NOT be fully rounded (AutoComplete, InputNumber, MultiSelect, DatePicker, Textarea) */
+    :host ::ng-deep .p-autocomplete input.p-inputtext,
+    :host ::ng-deep .p-inputnumber .p-inputnumber-input,
+    :host ::ng-deep .p-multiselect .p-multiselect-label,
+    :host ::ng-deep .p-datepicker .p-inputtext, /* Target p-datepicker input specifically */
+    :host ::ng-deep .p-inputtextarea {
+      border-radius: 0.5rem !important; /* Small rounded corners for these fields */
+      width: 100%; /* Ensure they take full width if needed */
+    }
 
+    /* Ensure float labels work with full width */
+    :host ::ng-deep .p-floatlabel > .p-inputtext,
+    :host ::ng-deep .p-floatlabel > .p-inputnumber,
+    :host ::ng-deep .p-floatlabel > .p-autocomplete,
+    :host ::ng-deep .p-floatlabel > .p-datepicker, /* Target p-datepicker here */
+    :host ::ng-deep .p-floatlabel > .p-multiselect,
+    :host ::ng-deep .p-floatlabel > .p-inputtextarea {
+        width: 100%;
+    }
   `,
   imports: [
     ButtonModule,
@@ -99,10 +95,12 @@ export class CustomDynamiqueDialogComponent implements OnInit {
   roomTypeOptions = signal<RoomType[]>([]);
   amenityOptions = signal<Amenity[]>([]);
   roomStatusOptions = signal<RoomStatus[]>([]);
+  viewTypeOptions = signal<ViewType[]>([]); // Added for viewType options in autocomplete
 
   // Signals for filtered autocomplete suggestions
   _filteredRoomTypes = signal<RoomType[]>([]);
   _filteredRoomStatuses = signal<RoomStatus[]>([]);
+  _filteredViewTypes = signal<ViewType[]>([]); // Added for viewType autocomplete
 
   activePanel = signal<string[] | number>(['0']); 
 
@@ -125,7 +123,14 @@ export class CustomDynamiqueDialogComponent implements OnInit {
       this._sizeInSqMeters.set(room.sizeInSqMeters || null);
       this._floor.set(room.floor || null);
       this._bedConfiguration.set(room.bedConfiguration || '');
-      this._viewType.set(room.viewType); // Assign directly from room
+      
+      // IMPORTANT: Convert incoming room.viewType to uppercase to match backend enum
+      if (room.viewType) {
+        this._viewType.set(room.viewType.toUpperCase() as ViewType);
+      } else {
+        this._viewType.set(undefined);
+      }
+      
       this._basePrice.set(room.basePrice);
       this._weekendPrice.set(room.weekendPrice || null);
       this._onSale.set(room.onSale);
@@ -141,10 +146,12 @@ export class CustomDynamiqueDialogComponent implements OnInit {
       this.roomTypeOptions.set(this.config.data.options.roomTypes || []);
       this.amenityOptions.set(this.config.data.options.amenities || []);
       this.roomStatusOptions.set(this.config.data.options.roomStatuses || []);
+      this.viewTypeOptions.set(this.config.data.options.viewTypes || []); // Assign viewType options
 
       // Initialize filtered options with all options for immediate display
       this._filteredRoomTypes.set(this.roomTypeOptions());
       this._filteredRoomStatuses.set(this.roomStatusOptions());
+      this._filteredViewTypes.set(this.viewTypeOptions()); // Initialize filtered viewType options
     }
   }
 
@@ -180,6 +187,22 @@ export class CustomDynamiqueDialogComponent implements OnInit {
     this._filteredRoomStatuses.set(filtered);
   }
 
+  /**
+   * Filters view types based on user input for p-autoComplete.
+   * @param event The autocomplete event containing the query.
+   */
+  filterViewTypes(event: { query: string }): void {
+    const filtered: ViewType[] = [];
+    const query = event.query.toLowerCase();
+
+    for (const type of this.viewTypeOptions()) {
+      if (type.toLowerCase().includes(query)) {
+        filtered.push(type);
+      }
+    }
+    this._filteredViewTypes.set(filtered);
+  }
+
   confirmAndSend() {
     this.processing.set(true);
     this.messageService.add({severity:'info', summary: 'Processing', detail: 'Saving changes...', life: 1500});
@@ -192,11 +215,11 @@ export class CustomDynamiqueDialogComponent implements OnInit {
         adults: this._adultsCapacity() || 0,
         children: this._childrenCapacity() || 0
       },
-      // Use nullish coalescing operator (??) to ensure 'undefined' if signal is null
       sizeInSqMeters: this._sizeInSqMeters() ?? undefined,
       floor: this._floor() ?? undefined,
       bedConfiguration: this._bedConfiguration(),
-      viewType: this._viewType() ?? undefined, // Assign directly without casting
+      // IMPORTANT: Ensure viewType is uppercase before sending
+      viewType: this._viewType() ? (this._viewType() as string).toUpperCase() as ViewType : undefined,
       basePrice: this._basePrice() ?? undefined,
       weekendPrice: this._weekendPrice() ?? undefined,
       onSale: this._onSale(),

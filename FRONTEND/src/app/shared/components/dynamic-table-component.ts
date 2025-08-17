@@ -1,3 +1,4 @@
+// src/app/shared/components/dynamic-table-component.ts
 import {
   Component,
   input,
@@ -10,10 +11,10 @@ import {
 import { FormsModule } from '@angular/forms';
 
 // PrimeNG Modules
-import { Table, TableModule } from 'primeng/table'; // TableModule contains ColumnFilter, TableHeaderCheckbox, TableCheckbox
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
-import { InputTextModule } from 'primeng/inputtext'; // Corrected import
+import { InputTextModule } from 'primeng/inputtext';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RatingModule } from 'primeng/rating';
 import { TagModule } from 'primeng/tag';
@@ -24,6 +25,7 @@ import { CardModule } from 'primeng/card';
 
 // Custom Components
 import { SearchBarComponent } from './search-bar.component';
+import { CommonModule } from '@angular/common'; // For ngFor, ngIf in template
 
 export interface TableColumn {
   field: string;
@@ -38,7 +40,9 @@ export interface TableColumn {
     | 'rating'
     | 'progress'
     | 'status'
-    | 'size';
+    | 'size'
+    | 'tags' // New type for array of strings (amenities)
+    | 'custom'; // New type for custom action button
   format?: string;
   imageConfig?: { width?: string; height?: string; class?: string };
   statusConfig?: {
@@ -46,7 +50,9 @@ export interface TableColumn {
   };
   sortable?: boolean;
   resizable?: boolean;
-  visible?: boolean;
+  visible?: boolean; // Controls default visibility and in column selector
+  customAction?: boolean; // Indicates if this column should render a custom action button
+  buttonIcon?: string; // Icon for the custom action button (e.g., 'pi pi-images')
 }
 
 @Component({
@@ -54,7 +60,7 @@ export interface TableColumn {
   standalone: true,
   imports: [
     FormsModule,
-    TableModule, // Provides p-table, p-columnFilter, p-tableHeaderCheckbox, p-tableCheckbox directives
+    TableModule,
     ButtonModule,
     PaginatorModule,
     InputTextModule,
@@ -66,6 +72,7 @@ export interface TableColumn {
     TooltipModule,
     CardModule,
     SearchBarComponent,
+    CommonModule // Required for @for, @if, etc.
   ],
   templateUrl: './dynamic-table-component.html',
   styles: ``,
@@ -80,47 +87,37 @@ export class DynamicTableComponent implements OnInit {
   selectionMode = input<'single' | 'multiple' | null>(null);
   clientSidePaginator = input(true);
   showColumnSelect = input(true);
-  showActions = input(false);
+  showActions = input(false); // Controls standard edit/delete actions
 
   // --- MODELS ---
   selectedItems = model<any[]>([]);
-  visibleColumns = model<TableColumn[]>([]);
+  // Initialize with an empty array. The actual filtering will happen in ngOnInit.
+  visibleColumns = model<TableColumn[]>([]); 
 
   // --- OUTPUTS ---
   onEdit = output<any>();
   onDelete = output<any>();
+  onCustomAction = output<any>(); // NEW: Output for custom column actions
 
   // --- SIGNALS ---
-  // Get a reference to the p-table component.
   dt = viewChild<Table>('dt');
-  // Define fields for global filtering based on columns.
   globalFilterFields = computed(() => this.columns().map((col) => col.field));
 
   ngOnInit(): void {
-    // Initialize visibleColumns based on the 'columns' input's initial value.
+    // Now, in ngOnInit, 'columns' input is guaranteed to have a value.
     this.visibleColumns.set(
       this.columns().filter((col) => col.visible !== false)
     );
   }
 
   // --- HELPERS ---
-  /**
-   * Handles the global filter search event from the SearchBarComponent.
-   * Calls the filterGlobal method on the PrimeNG table instance.
-   * @param value The search string.
-   */
   onGlobalFilter(value: string): void {
-    const tableInstance = this.dt(); // Get the actual p-table instance from the signal
+    const tableInstance = this.dt();
     if (tableInstance) {
       tableInstance.filterGlobal(value, 'contains');
     }
   }
 
-  /**
-   * Formats a number of bytes into a human-readable size string.
-   * @param bytes The number of bytes to format.
-   * @returns A string representing the formatted size (e.g., "1.23 MB").
-   */
   formatSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -129,17 +126,14 @@ export class DynamicTableComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  /**
-   * Determines the severity (color) for a status tag based on predefined mappings or a switch case.
-   * @param status The status string to evaluate.
-   * @returns A string representing the severity ('success', 'warning', 'danger', 'info').
-   */
   getSeverityForStatus(status: string): string {
-    const statusConfig = this.columns().find((c) => c.type === 'status')
-      ?.statusConfig?.map;
+    const statusColumn = this.columns().find((c) => c.type === 'status');
+    const statusConfig = statusColumn?.statusConfig?.map;
+
     if (statusConfig && statusConfig[status]) {
       return statusConfig[status].severity;
     }
+    // Fallback to default severities if no specific config is found for the status
     switch (status?.toUpperCase()) {
       case 'AVAILABLE':
       case 'COMPLETED':
@@ -158,14 +152,14 @@ export class DynamicTableComponent implements OnInit {
     }
   }
 
-  /**
-   * Safely retrieves a nested property value from an object using a dot-separated path.
-   * Example: getNestedPropertyValue(room, 'capacity.adults')
-   * @param obj The object to traverse.
-   * @param path The dot-separated path to the nested property.
-   * @returns The value of the nested property, or undefined if not found.
-   */
   getNestedPropertyValue(obj: any, path: string): any {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  }
+
+  // NEW: Handle custom button click
+  handleCustomAction(rowData: any, column: TableColumn): void {
+    if (column.customAction) {
+      this.onCustomAction.emit(rowData); // Emit the rowData for the custom action
+    }
   }
 }

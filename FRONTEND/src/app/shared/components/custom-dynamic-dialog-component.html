@@ -1,3 +1,4 @@
+<!-- src/app/shared/components/custom-dynamic-dialog-component.html -->
 <div class="p-6 flex flex-col items-center bg-theme shadow-inner w-full">
   <h2 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Edit Room Details 🛠️</h2>
   <p class="mb-6 text-center text-gray-700 dark:text-gray-300 max-w-2xl leading-relaxed">
@@ -77,8 +78,9 @@
 
     <div class="col-span-full">
       <label for="viewType" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">View Type:</label>
-      <input id="viewType" type="text" pInputText [(ngModel)]="_viewType" placeholder="e.g., Ocean View, City View"
-        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
+      <!-- CHANGE: Using p-autoComplete for viewType for consistency and filtering -->
+      <p-autoComplete id="viewType" [(ngModel)]="_viewType" [suggestions]="_filteredViewTypes()" (completeMethod)="filterViewTypes($event)"
+        placeholder="Select View Type" [dropdown]="true" class="w-full p-fluid" />
     </div>
 
     <div class="col-span-full sm:col-span-1">

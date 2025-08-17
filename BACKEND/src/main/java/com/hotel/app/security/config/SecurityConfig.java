@@ -1,3 +1,4 @@
+// src/main/java/com/hotel/app/security/config/SecurityConfig.java
 package com.hotel.app.security.config;
 
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,8 @@ public class SecurityConfig {
             "/api/rooms/*",        // Allow GET single room publicly
             "/api/bookings/available-rooms", // Allow GET available rooms publicly
             "/webjars/**",
-            // You might need to add paths for serving static image files here if they are in 'uploads' and accessed directly
-            // e.g., "/uploads/**" if you configure a resource handler in Spring MVC.
+            // CORRECTION: Allow public access to static image files served from /api/media/
+            "/api/media/**" 
     };
 
     @Bean

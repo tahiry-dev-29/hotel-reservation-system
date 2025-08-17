@@ -1,9 +1,11 @@
+// src/app/shared/components/images-input-component.ts
 import { Component, input } from '@angular/core';
-import { Image } from 'primeng/image';
+import { ImageModule } from 'primeng/image'; // Assuming Image is part of ImageModule
 
 @Component({
   selector: 'app-images-input-component',
-  imports: [Image], 
+  standalone: true, // Assuming it's standalone as per your project configuration
+  imports: [ImageModule], // Import ImageModule to use p-image
   template: `
         <p-image [src]="imageSrc()" 
                  [width]="width()"

@@ -1,197 +1,390 @@
-<div class="space-y-6">
-    <!-- Add Toast component at the top -->
-    <p-toast></p-toast> 
+<!-- src/app/features/rooms/pages/room-add-page-component.html -->
+<div class="space-y-6 p-4">
+  <p-toast></p-toast> <!-- Add toast for messages -->
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-bold text-text-color">Create New Room 🏨</h2>
+    <a routerLink="../list">
+      <p-button label="Back to List" icon="pi pi-arrow-left" styleClass="p-button-text"></p-button>
+    </a>
+  </div>
 
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-text-color">Add New Room</h2>
-        <a routerLink="../list">
-            <p-button label="Back to List" icon="pi pi-arrow-left" styleClass="p-button-text"></p-button>
-        </a>
-    </div>
+  <div class="rounded-md p-6 bg-surface-card shadow-lg">
+    <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Room Details</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Room Number -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+              <input pInputText id="roomNumber" formControlName="roomNumber" [invalid]="isFieldInvalid(f['roomNumber'])" required class="w-full rounded-full" />
+              <label for="roomNumber">Room Number</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['roomNumber'])) {
+              @if (f['roomNumber'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Room Number is required</p-message>
+              }
+              @if (f['roomNumber'].errors?.['pattern']) {
+                <p-message severity="error" variant="simple" size="small">Invalid Room Number format</p-message>
+              }
+            }
+          </div>
+        </div>
 
-    <div class="rounded-md!">
-        <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col">
-                    <p-floatlabel variant="on">
-                        <input pInputText id="title" formControlName="title" [invalid]="isFieldInvalid(f['title'])"
-                            required class="w-full rounded-full" />
-                        <label for="title">Title</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['title'])) {
-                        @if (f['title'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Title is required</p-message>
-                        }
-                        @if (f['title'].errors?.['minlength']) {
-                        <p-message severity="error" variant="simple" size="small">Title must be at least {{
-                            f['title'].errors?.['minlength'].requiredLength }} characters</p-message>
-                        }
-                        @if (f['title'].errors?.['maxlength']) {
-                        <p-message severity="error" variant="simple" size="small">Title cannot exceed {{
-                            f['title'].errors?.['maxlength'].requiredLength }} characters</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Title -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+              <input pInputText id="title" formControlName="title" [invalid]="isFieldInvalid(f['title'])" required class="w-full rounded-full" />
+              <label for="title">Title</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['title'])) {
+              @if (f['title'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Title is required</p-message>
+              }
+              @if (f['title'].errors?.['minlength']) {
+                <p-message severity="error" variant="simple" size="small">Title must be at least {{ f['title'].errors?.['minlength'].requiredLength }} characters</p-message>
+              }
+              @if (f['title'].errors?.['maxlength']) {
+                <p-message severity="error" variant="simple" size="small">Title cannot exceed {{ f['title'].errors?.['maxlength'].requiredLength }} characters</p-message>
+              }
+            }
+          </div>
+        </div>
 
-                <div class="flex flex-col">
-                    <p-floatlabel variant="on">
-                        <p-iconfield iconPosition="left">
-                            <input pInputText id="location" formControlName="location"
-                                [invalid]="isFieldInvalid(f['location'])" required class="w-full rounded-full" />
-                            <p-inputicon class="pi pi-map-marker" />
-                        </p-iconfield>
-                        <label for="location">Location</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['location'])) {
-                        @if (f['location'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Location is required</p-message>
-                        }
-                        @if (f['location'].errors?.['minlength']) {
-                        <p-message severity="error" variant="simple" size="small">Location must be at least {{
-                            f['location'].errors?.['minlength'].requiredLength }} characters</p-message>
-                        }
-                        @if (f['location'].errors?.['maxlength']) {
-                        <p-message severity="error" variant="simple" size="small">Location cannot exceed {{
-                            f['location'].errors?.['maxlength'].requiredLength }} characters</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Description -->
+        <div class="flex flex-col col-span-full">
+          <p-floatlabel variant="on">
+              <textarea pInputTextarea id="description" formControlName="description" rows="3" [autoResize]="true"
+                        [invalid]="isFieldInvalid(f['description'])" class="w-full rounded-md"></textarea>
+              <label for="description">Description</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['description'])) {
+              @if (f['description'].errors?.['minlength']) {
+                <p-message severity="error" variant="simple" size="small">Description must be at least {{ f['description'].errors?.['minlength'].requiredLength }} characters</p-message>
+              }
+              @if (f['description'].errors?.['maxlength']) {
+                <p-message severity="error" variant="simple" size="small">Description cannot exceed {{ f['description'].errors?.['maxlength'].requiredLength }} characters</p-message>
+              }
+            }
+          </div>
+        </div>
 
-                <div class="flex flex-col">
-                    <p-floatlabel variant="on">
-                        <p-autoComplete [suggestions]="filteredRoomTypes" (completeMethod)="searchRoomTypes($event)"
-                            formControlName="roomType" field="name" [dropdown]="true" [showClear]="true"
-                            placeholder="Select a Type" class="w-full" [forceSelection]="true"> <!-- Added forceSelection -->
-                            <ng-template let-type pTemplate="item">
-                                <div>{{ type.name }}</div>
-                            </ng-template>
-                        </p-autoComplete>
-                        <label for="roomType">Room Type</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['roomType'])) {
-                        @if (f['roomType'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Room Type is required</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Location (from your provided template, no direct DTO mapping) -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-iconfield iconPosition="left">
+                <input pInputText id="location" formControlName="location"
+                    [invalid]="isFieldInvalid(f['location'])" required class="w-full rounded-full" />
+                <p-inputicon class="pi pi-map-marker" />
+            </p-iconfield>
+            <label for="location">Location</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['location'])) {
+              @if (f['location'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Location is required</p-message>
+              }
+              @if (f['location'].errors?.['minlength']) {
+                <p-message severity="error" variant="simple" size="small">Location must be at least {{ f['location'].errors?.['minlength'].requiredLength }} characters</p-message>
+              }
+              @if (f['location'].errors?.['maxlength']) {
+                <p-message severity="error" variant="simple" size="small">Location cannot exceed {{ f['location'].errors?.['maxlength'].requiredLength }} characters</p-message>
+              }
+            }
+          </div>
+        </div>
 
-                <div class="flex-auto flex-col">
-                    <p-floatlabel variant="on">
-                        <p-inputNumber inputId="price" formControlName="price" [invalid]="isFieldInvalid(f['price'])"
-                            mode="currency" currency="EUR" locale="en-US" class="w-full" [showButtons]="true"
-                            buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.25">
-                            <ng-template #incrementbuttonicon>
-                                <span class="pi pi-plus"></span>
-                            </ng-template>
-                            <ng-template #decrementbuttonicon>
-                                <span class="pi pi-minus"></span>
-                            </ng-template>
-                        </p-inputNumber>
-                        <label for="price">Price per Night</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['price'])) {
-                        @if (f['price'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Price is required</p-message>
-                        }
-                        @if (f['price'].errors?.['min']) {
-                        <p-message severity="error" variant="simple" size="small">Price must be positive</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Room Type -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-select 
+              id="roomType" 
+              formControlName="roomType" 
+              [options]="roomTypeOptions" 
+              optionLabel="name" 
+              optionValue="value" 
+              [showClear]="true" 
+              [invalid]="isFieldInvalid(f['roomType'])" required class="w-full">
+            </p-select>
+            <label for="roomType">Room Type</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['roomType'])) {
+              @if (f['roomType'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Room Type is required</p-message>
+              }
+            }
+          </div>
+        </div>
 
-                <div class="flex flex-col">
-                    <p-floatlabel variant="on">
-                        <p-datepicker id="availableFrom" formControlName="availableFrom"
+        <!-- Room Status -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-select 
+              id="roomStatus" 
+              formControlName="roomStatus" 
+              [options]="roomStatusOptions" 
+              optionLabel="name" 
+              optionValue="value" 
+              [showClear]="true" 
+              [invalid]="isFieldInvalid(f['roomStatus'])" required class="w-full">
+            </p-select>
+            <label for="roomStatus">Room Status</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['roomStatus'])) {
+              @if (f['roomStatus'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Room Status is required</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Capacity -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-inputNumber id="adultsCapacity" formControlName="adultsCapacity" [showButtons]="true" [min]="1" 
+                           [invalid]="isFieldInvalid(f['adultsCapacity'])" required class="w-full"></p-inputNumber> 
+            <label for="adultsCapacity">Adults Capacity</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['adultsCapacity'])) {
+              @if (f['adultsCapacity'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Adults Capacity is required</p-message>
+              }
+              @if (f['adultsCapacity'].errors?.['min']) {
+                <p-message severity="error" variant="simple" size="small">Must be at least {{ f['adultsCapacity'].errors?.['min'].min }} adult</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-inputNumber id="childrenCapacity" formControlName="childrenCapacity" [showButtons]="true" [min]="0" 
+                           [invalid]="isFieldInvalid(f['childrenCapacity'])" class="w-full"></p-inputNumber> 
+            <label for="childrenCapacity">Children Capacity</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['childrenCapacity'])) {
+              @if (f['childrenCapacity'].errors?.['min']) {
+                <p-message severity="error" variant="simple" size="small">Children capacity cannot be negative</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Size in Sq Meters -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-inputNumber id="sizeInSqMeters" formControlName="sizeInSqMeters" [showButtons]="true" [min]="10" 
+                           [invalid]="isFieldInvalid(f['sizeInSqMeters'])" class="w-full"></p-inputNumber> 
+            <label for="sizeInSqMeters">Size (sq. meters)</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['sizeInSqMeters'])) {
+              @if (f['sizeInSqMeters'].errors?.['min']) {
+                <p-message severity="error" variant="simple" size="small">Minimum size is {{ f['sizeInSqMeters'].errors?.['min'].min }} m²</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Floor -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-inputNumber id="floor" formControlName="floor" [showButtons]="true" [min]="0" 
+                           [invalid]="isFieldInvalid(f['floor'])" class="w-full"></p-inputNumber> 
+            <label for="floor">Floor</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['floor'])) {
+              @if (f['floor'].errors?.['min']) {
+                <p-message severity="error" variant="simple" size="small">Floor cannot be negative</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Bed Configuration -->
+        <div class="flex flex-col col-span-full">
+          <p-floatlabel variant="on">
+              <input pInputText id="bedConfiguration" formControlName="bedConfiguration" [invalid]="isFieldInvalid(f['bedConfiguration'])" required class="w-full rounded-full" />
+              <label for="bedConfiguration">Bed Configuration</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['bedConfiguration'])) {
+              @if (f['bedConfiguration'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Bed Configuration is required</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- View Type -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-select 
+              id="viewType" 
+              formControlName="viewType" 
+              [options]="viewTypeOptions" 
+              optionLabel="name" 
+              optionValue="value" 
+              [showClear]="true" 
+              [invalid]="isFieldInvalid(f['viewType'])" required class="w-full">
+            </p-select>
+            <label for="viewType">View Type</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['viewType'])) {
+              @if (f['viewType'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">View Type is required</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Price (from your template, maps to basePrice) -->
+        <div class="flex flex-col">
+            <p-floatlabel variant="on">
+                <p-inputNumber inputId="price" formControlName="price" [invalid]="isFieldInvalid(f['price'])"
+                    mode="currency" currency="USD" locale="en-US" class="w-full" [showButtons]="true"
+                    buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.01">
+                    <ng-template #incrementbuttonicon>
+                        <span class="pi pi-plus"></span>
+                    </ng-template>
+                    <ng-template #decrementbuttonicon>
+                        <span class="pi pi-minus"></span>
+                    </ng-template>
+                </p-inputNumber>
+                <label for="price">Base Price</label>
+            </p-floatlabel>
+            <div class="h-5 overflow-hidden">
+                @if (isFieldInvalid(f['price'])) {
+                    @if (f['price'].errors?.['required']) {
+                        <p-message severity="error" variant="simple" size="small">Base Price is required</p-message>
+                    }
+                    @if (f['price'].errors?.['min']) {
+                        <p-message severity="error" variant="simple" size="small">Base Price must be greater than 0</p-message>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Weekend Price -->
+        <div class="flex flex-col">
+          <p-floatlabel variant="on">
+            <p-inputNumber id="weekendPrice" formControlName="weekendPrice" mode="currency" currency="USD" locale="en-US" [min]="0" 
+                           [invalid]="isFieldInvalid(f['weekendPrice'])" class="w-full rounded-full"></p-inputNumber>
+            <label for="weekendPrice">Weekend Price</label>
+          </p-floatlabel>
+          <div class="h-5 overflow-hidden">
+            @if (isFieldInvalid(f['weekendPrice'])) {
+              @if (f['weekendPrice'].errors?.['min']) {
+                <p-message severity="error" variant="simple" size="small">Weekend Price cannot be negative</p-message>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- On Sale Checkbox -->
+        <div class="flex items-center col-span-full">
+          <p-checkbox formControlName="onSale" inputId="onSale" [binary]="true" class="mr-3"></p-checkbox>
+          <label for="onSale" class="text-base font-medium text-gray-700 dark:text-gray-300">On Sale</label>
+        </div>
+
+        <!-- Sale Price (conditional) -->
+        @if (f['onSale'].value) {
+          <div class="flex flex-col col-span-full">
+            <p-floatlabel variant="on">
+              <p-inputNumber id="salePrice" formControlName="salePrice" mode="currency" currency="USD" locale="en-US" [min]="0" 
+                             [invalid]="isFieldInvalid(f['salePrice'])" required class="w-full rounded-full"></p-inputNumber>
+              <label for="salePrice">Sale Price</label>
+            </p-floatlabel>
+            <div class="h-5 overflow-hidden">
+              @if (isFieldInvalid(f['salePrice'])) {
+                @if (f['salePrice'].errors?.['required']) {
+                  <p-message severity="error" variant="simple" size="small">Sale Price is required when on sale</p-message>
+                }
+                @if (f['salePrice'].errors?.['min']) {
+                  <p-message severity="error" variant="simple" size="small">Sale Price cannot be negative</p-message>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Amenities MultiSelect -->
+        <div class="flex flex-col col-span-full">
+          <p-floatlabel variant="on">
+            <p-multiSelect 
+              id="amenities" 
+              [options]="amenityOptions" 
+              formControlName="amenities"
+              display="chip" class="w-full"
+              optionLabel="name" 
+              optionValue="value">
+            </p-multiSelect>
+            <label for="amenities">Amenities</label>
+          </p-floatlabel>
+        </div>
+        
+        <!-- Available From -->
+        <div class="flex flex-col">
+           <p-floatlabel variant="on"> 
+                        <p-datepicker id="availableFrom" formControlName="availableFrom" 
                             [invalid]="isFieldInvalid(f['availableFrom'])" [showIcon]="true" [showButtonBar]="true"
                             iconDisplay="input" dateFormat="dd/mm/yy" placeholder="Select a Date"
                             class="w-full"></p-datepicker>
                         <label for="availableFrom">Available From</label>
                     </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['availableFrom'])) {
-                        @if (f['availableFrom'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Availability date is
-                            required</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+          <div class="h-5 overflow-hidden">
+              @if (isFieldInvalid(f['availableFrom'])) {
+              @if (f['availableFrom'].errors?.['required']) {
+              <p-message severity="error" variant="simple" size="small">Availability date is
+                  required</p-message>
+              }
+              }
+          </div>
+        </div>
 
-                <div class="flex flex-col">
-                    <p-floatlabel variant="on">
-                        <p-autoComplete [suggestions]="filteredRoomStatuses"
-                            (completeMethod)="searchRoomStatuses($event)" formControlName="roomStatus" field="name"
-                            [dropdown]="true" [showClear]="true" placeholder="Select a Status" class="w-full" [forceSelection]="true"> <!-- Added forceSelection -->
-                            <ng-template let-status pTemplate="item">
-                                <div>{{ status.name }}</div>
-                            </ng-template>
-                        </p-autoComplete>
-                        <label for="roomStatus">Room Status</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['roomStatus'])) {
-                        @if (f['roomStatus'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Room Status is required</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Is Published Checkbox -->
+        <div class="flex items-center col-span-full">
+          <p-checkbox formControlName="isPublished" inputId="isPublished" [binary]="true" class="mr-3"></p-checkbox>
+          <label for="isPublished" class="text-base font-medium text-gray-700 dark:text-gray-300">Is Published</label>
+        </div>
+        <!-- In Stock Toggle (from your provided template, mapped to isPublished) -->
+        <app-toggle-switch-with-label [control]="f['inStock']" label="In Stock" uniqueId="inStockSwitch" />
 
-                <div class="flex flex-col md:col-span-2">
-                    <p-floatlabel variant="on">
-                        <textarea rows="5" cols="30" pInputTextarea autoResize formControlName="description"
-                            [invalid]="isFieldInvalid(f['description'])" required class="w-full"></textarea>
-                        <label for="description">Description</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['description'])) {
-                        @if (f['description'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">Description is required</p-message>
-                        }
-                        @if (f['description'].errors?.['minlength']) {
-                        <p-message severity="error" variant="simple" size="small">Description must be at least {{
-                            f['description'].errors?.['minlength'].requiredLength }} characters</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+        <!-- Internal Notes -->
+        <div class="flex flex-col col-span-full">
+          <p-floatlabel variant="on">
+              <textarea pInputTextarea id="internalNotes" formControlName="internalNotes" rows="3" [autoResize]="true"
+                        class="w-full rounded-md"></textarea>
+              <label for="internalNotes">Internal Notes</label>
+          </p-floatlabel>
+        </div>
+      </div>
+      <p-divider />
 
-                <div class="flex flex-col md:col-span-2">
-                    <p-floatlabel variant="on">
-                        <p-multiSelect [options]="availableAmenities" formControlName="amenities" optionLabel="name"
-                            display="chip" [invalid]="isFieldInvalid(f['amenities'])" class="w-full">
-                        </p-multiSelect>
-                        <label for="amenities">Amenities</label>
-                    </p-floatlabel>
-                    <div class="h-5 overflow-hidden">
-                        @if (isFieldInvalid(f['amenities'])) {
-                        @if (f['amenities'].errors?.['required']) {
-                        <p-message severity="error" variant="simple" size="small">At least one amenity is
-                            required</p-message>
-                        }
-                        }
-                    </div>
-                </div>
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Room Images</h3>
+      <!-- Dynamic File Upload Component -->
+      <app-dynamic-file-upload (onFilesReady)="onFilesReady($event)"></app-dynamic-file-upload>
 
-                <app-toggle-switch-with-label [control]="f['inStock']" label="In Stock" uniqueId="inStockSwitch" />
-                <app-toggle-switch-with-label [control]="f['onSale']" label="On Sale" uniqueId="onSaleSwitch" />
-            </div>
+      <p-divider />
 
-            <p-divider />
-
-            <div class="flex justify-end gap-4 mt-8">
-                <p-button label="Cancel" styleClass="p-button-text" routerLink="../list"></p-button>
-                <app-button [loading]="loading()" [disabled]="roomForm.invalid || loading()" [type]="'submit'"
-                    [buttonText]="'Save Room'" icon="pi pi-check" [severity]="'success'" />
-            </div>
-        </form>
-    </div>
+      <div class="flex justify-end gap-4 mt-8">
+        <p-button label="Cancel" styleClass="p-button-text" routerLink="../list"></p-button>
+        <app-button
+            [loading]="loading()"
+            [disabled]="roomForm.invalid || loading()"
+            [type]="'submit'"
+            [buttonText]="'Create Room'"
+            icon="pi pi-plus"
+            [severity]="'success'"
+        />
+      </div>
+    </form>
+  </div>
 </div>

@@ -16,24 +16,29 @@ export const authInterceptor: HttpInterceptorFn = (
   // This getToken() is for staff users. We are explicitly excluding customer auth paths.
   const staffToken = authService.getToken(); 
 
-  const publicApiPaths = [
+  // Paths that are ALWAYS public, regardless of method (authentication not required at all)
+  const alwaysPublicPaths = [
     `${environment.apiUrl}/auth/login`,
     `${environment.apiUrl}/auth/register`,
-    `${environment.apiUrl}/customer-auth/login`, // NEW: Customer Login endpoint is public
-    `${environment.apiUrl}/customer-auth/register`, // NEW: Customer Register endpoint is public
-    `${environment.apiUrl}/rooms`, // Public endpoint for rooms
-    `${environment.apiUrl}/rooms/`, // Specific room details
+    `${environment.apiUrl}/customer-auth/login`, // Customer Login endpoint is public
+    `${environment.apiUrl}/customer-auth/register`, // Customer Register endpoint is public
     `${environment.apiUrl}/bookings/available-rooms`, // Public for checking availability
   ];
 
-  // Check if the current request URL starts with any of the public API paths
-  const isPublicApi = publicApiPaths.some(path => req.url.startsWith(path));
-  // Specifically allow GET for any room ID
-  const isSpecificRoomGetPublic = req.url.match(new RegExp(`^${environment.apiUrl}/rooms/[^/]+$`)) && req.method === 'GET';
+  // Check if the current request URL starts with any of the always public API paths
+  const isAlwaysPublicApi = alwaysPublicPaths.some(path => req.url.startsWith(path));
 
+  // Special case: GET requests to /api/rooms (all rooms) or /api/rooms/{id} (single room) are public
+  // This needs to be precise so other methods (POST, PUT, DELETE) on /api/rooms are not skipped.
+  const isRoomGetPublic = req.method === 'GET' && (
+    req.url === `${environment.apiUrl}/rooms` || // Matches exact path for all rooms
+    req.url.match(new RegExp(`^${environment.apiUrl}/rooms/[^/]+$`)) // Matches /rooms/{id}
+  );
 
-  // Attach staff token only if it exists and the request is NOT to a public API
-  if (staffToken && !isPublicApi && !isSpecificRoomGetPublic) {
+  // Attach staff token only if it exists AND the request is NOT an always public API
+  // AND it's NOT a public GET request for rooms.
+  // This ensures that DELETE, POST, PUT requests to /api/rooms/** receive the token.
+  if (staffToken && !isAlwaysPublicApi && !isRoomGetPublic) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${staffToken}`,

@@ -8,7 +8,6 @@
 
       <div class="p-toolbar-group-end flex items-center gap-2">
         @if (showGlobalFilter()) {
-          <!-- Call the new onGlobalFilter method in the component -->
           <app-search-bar (search)="onGlobalFilter($event)" placeholder="Search..." [progressspinner]="true" />
         }
         @if (showColumnSelect()) {
@@ -102,8 +101,31 @@
               @case ('size') {
                 <span>{{ formatSize(rowData[col.field]) }}</span>
               }
+              @case ('tags') {
+                @if (getNestedPropertyValue(rowData, col.field)?.length > 0) {
+                  <div class="flex flex-wrap gap-1">
+                    @for (tag of getNestedPropertyValue(rowData, col.field); track $index) {
+                      <p-tag [value]="tag"></p-tag>
+                    }
+                  </div>
+                } @else {
+                  <span>-</span>
+                }
+              }
+              @case ('custom') {
+                <div class="flex justify-center">
+                  @if (col.customAction) {
+                    <p-button
+                      [icon]="col.buttonIcon || 'pi pi-ellipsis-h'"
+                      styleClass="p-button-rounded p-button-text p-button-secondary"
+                      (click)="handleCustomAction(rowData, col)"
+                      [pTooltip]="col.header"
+                      tooltipPosition="top"
+                    ></p-button>
+                  }
+                </div>
+              }
               @default {
-                <!-- Handle nested properties (e.g., capacity.adults) using the helper function -->
                 <span>{{ getNestedPropertyValue(rowData, col.field) }}</span>
               }
             }
