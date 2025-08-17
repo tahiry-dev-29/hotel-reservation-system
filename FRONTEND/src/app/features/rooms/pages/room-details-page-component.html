@@ -51,47 +51,42 @@
 
                 <div class="mb-8">
                     <h2 class="text-2xl font-semibold mb-3 text-surface-800 dark:text-surface-100">Description</h2>
-                    <p class="text-surface-700 dark:text-surface-300 leading-relaxed">{{ roomData()!.content }}</p>
+                    <p class="text-surface-700 dark:text-surface-300 leading-relaxed">{{ roomData()!.description }}</p>
                 </div>
                 <hr class="my-6 border-surface-200 dark:border-surface-700">
 
                 <p-accordion [(value)]="activePanel">
                     <app-dynamic-accordion-panel [value]="'0'" [header]="'What this place offers'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @for (amenity of roomData()!.amenities; track amenity) {
-                            <div class="flex items-center text-surface-700 dark:text-surface-300">
-                                <i class="pi pi-check text-primary-500 mr-2"></i>
-                                <span>{{ amenity }}</span>
+                            @for (amenity of allAmenities; track amenity) {
+                            <div class="flex items-center text-surface-700 dark:text-surface-300"
+                                [class.text-surface-400]="!roomData()!.amenities.includes(amenity)"
+                                [class.dark:text-surface-500]="!roomData()!.amenities.includes(amenity)">
+                                <i class="pi mr-2"
+                                [class.pi-check]="roomData()!.amenities.includes(amenity)"
+                                [class.text-primary-500]="roomData()!.amenities.includes(amenity)"
+                                [class.pi-times]="!roomData()!.amenities.includes(amenity)"></i>
+                                <span [class.line-through]="!roomData()!.amenities.includes(amenity)">{{ amenity }}</span>
                             </div>
                             }
                         </div>
                     </app-dynamic-accordion-panel>
                 </p-accordion>
                 <hr class="my-6 border-surface-200 dark:border-surface-700">
-                <div class="mb-8 flex items-center">
-                    <img src="https://placehold.co/60x60/3498db/FFF?text=Host" alt="Host Avatar"
-                        class="w-16 h-16 rounded-full mr-4 shadow-md">
-                    <div>
-                        <h2 class="text-2xl font-semibold text-surface-800 dark:text-surface-100">Hosted by {{
-                            roomData()!.hostName }}</h2>
-                        <p class="text-surface-600 dark:text-surface-400">{{ roomData()!.hostDescription }}</p>
-                    </div>
-                </div>
-                <hr class="my-6 border-surface-200 dark:border-surface-700">
             </div>
             <div class="lg:col-span-1">
                 <div
                     class="sticky top-32 bg-surface-50 dark:bg-surface-800 p-6 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700">
                     <div class="flex justify-between items-baseline mb-4">
-                        <span class="text-3xl font-bold text-surface-900 dark:text-surface-50">${{ roomData()!.price
+                        <span class="text-3xl font-bold text-surface-900 dark:text-surface-50">${{ roomData()!.basePrice
                             }}</span>
                         <span class="text-xl text-surface-600 dark:text-surface-400">/ night</span>
                     </div>
                     <p class="text-surface-700 dark:text-surface-300 mb-4">
-                        This room is currently {{ roomData()!.inStock ? 'available' : 'unavailable' }}.
+                        This room is currently {{ roomData()!.roomStatus === 'AVAILABLE' ? 'available' : 'unavailable' }}.
                     </p>
-                    <app-button [disabled]="!roomData()?.inStock" [icon]="'pi pi-check mr-2'" [type]="'submit'"
-                        [buttonText]="roomData()?.inStock ? 'Check Availability' : 'Currently Unavailable'"
+                    <app-button [disabled]="roomData()?.roomStatus !== 'AVAILABLE'" [icon]="'pi pi-check mr-2'" [type]="'submit'"
+                        [buttonText]="roomData()?.roomStatus === 'AVAILABLE' ? 'Check Availability' : 'Currently Unavailable'"
                         [variant]="'outlined'" [severity]="'primary'"
                         (buttonClick)="openReservationDialog()"
                         >

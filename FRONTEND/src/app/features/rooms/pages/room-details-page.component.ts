@@ -1,4 +1,5 @@
 import { Component, signal, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ImagesInputComponent } from '../../../shared/components/images-input-component';
 import { DynamicAccordionPanelComponent } from "../../../shared/components/dynamic-accordion-panel-component";
@@ -8,20 +9,9 @@ import { DialogService, DynamicDialogRef, DynamicDialogModule } from 'primeng/dy
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { CustomDynamiqueDialogComponent } from '../../../shared/components/custom-dynamic-dialog-component';
-
-interface Room {
-  id?: string;
-  title: string;
-  location?: string;
-  imageUrls: string[];
-  content: string;
-  amenities: string[];
-  hostName: string;
-  hostDescription: string;
-  price: number;
-  inStock: boolean;
-  onSale: boolean;
-}
+import { Room, RoomService, AMENITIES } from '../../../core/services/room-service';
+import { switchMap } from 'rxjs/operators';
+import { environment } from '../../../../environments/environments';
 
 interface Category {
   name: string;
@@ -35,6 +25,7 @@ interface Tag {
 
 @Component({
   selector: 'app-room-detail',
+  standalone: true,
   imports: [
     AccordionModule,
     ImagesInputComponent,
@@ -55,9 +46,12 @@ export class RoomDetailsPageComponents implements OnInit {
   roomData = signal<Room | null>(null);
   activePanel = signal<string[] | number>(['0']);
 
+  private route = inject(ActivatedRoute);
+  private roomService = inject(RoomService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
   dialogRef: DynamicDialogRef | undefined;
+  allAmenities = AMENITIES;
 
   categories: Category[] = [
     { name: 'Apartment', code: 'APT' },
@@ -74,28 +68,22 @@ export class RoomDetailsPageComponents implements OnInit {
   ];
 
   ngOnInit() {
-    setTimeout(() => {
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isLoading.set(true);
+          return this.roomService.getRoomById(id);
+        }
+        return [];
+      })
+    ).subscribe(room => {
       this.roomData.set({
-        id: '1',
-        title: 'Cozy Mountain Retreat',
-        location: 'Highlands, Madagascar',
-        imageUrls: [
-          'https://primefaces.org/cdn/primeng/images/galleria/galleria1.jpg',
-          'https://primefaces.org/cdn/primeng/images/galleria/galleria2.jpg',
-          'https://primefaces.org/cdn/primeng/images/galleria/galleria3.jpg',
-          'https://primefaces.org/cdn/primeng/images/galleria/galleria4.jpg',
-          'https://primefaces.org/cdn/primeng/images/galleria/galleria5.jpg'
-        ],
-        content: 'Experience tranquility in this beautiful mountain retreat. Perfect for a peaceful getaway, offering stunning views and modern amenities.',
-        amenities: ['Wi-Fi', 'Kitchen', 'Free parking', 'Air conditioning', 'Heating', 'TV', 'Private Bathroom'],
-        hostName: 'Jane Doe',
-        hostDescription: 'Experienced host with a passion for hospitality, dedicated to providing comfortable stays.',
-        price: 150,
-        inStock: true,
-        onSale: false,
+        ...room,
+        imageUrls: room.imageUrls.map(url => `${environment.fileUrl}/${url}`)
       });
       this.isLoading.set(false);
-    }, 1500);
+    });
   }
 
   openReservationDialog() {
@@ -114,7 +102,7 @@ export class RoomDetailsPageComponents implements OnInit {
       contentStyle: { 'max-height': 'calc(100vh - 100px)', 'overflow': 'auto' },
       baseZIndex: 10000,
       data: {
-        initialMessage: `You are booking the ${currentRoom.title} in ${currentRoom.location || 'an unknown location'} for ${currentRoom.price}$/night.`,
+        initialMessage: `You are booking the ${currentRoom.title} for ${currentRoom.basePrice}$/night.`, 
         formData: {
           userName: '',
           userEmail: '',
@@ -134,7 +122,7 @@ export class RoomDetailsPageComponents implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Reservation Confirmed! 🎉',
-          detail: `You've successfully requested to book ${currentRoom.title}!`,
+          detail: `You've successfully requested to book ${currentRoom.title}!`, 
           life: 5000
         });
         console.log('Reservation Data:', result.formData);

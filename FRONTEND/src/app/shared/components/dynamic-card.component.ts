@@ -1,9 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-dynamic-card',
   standalone: true,
-  imports: [],
+  imports: [CurrencyPipe],
   template: `
     <div class="relative rounded-lg shadow-md bg-card custome-border h-full flex flex-col">
 
@@ -19,6 +20,14 @@ import { Component, input, output } from '@angular/core';
       @if (content()) {
         <div class="text-surface-600 dark:text-surface-300 text-base flex-grow">{{content()}}</div>
       }
+      <div class="flex justify-between items-center mt-4">
+        @if (roomType()) {
+          <span class="text-sm font-semibold text-surface-500 dark:text-surface-400">{{roomType()}}</span>
+        }
+        @if (price()) {
+          <span class="text-lg font-bold text-primary">{{ price() | currency:'EUR' }}</span>
+        }
+      </div>
     </div>
     </div>
   `,
@@ -28,4 +37,6 @@ export class DynamicCardComponent {
   title = input<string>();
   content = input<string>();
   imageUrl = input<string>();
+  price = input<number>();
+  roomType = input<string>();
 }
