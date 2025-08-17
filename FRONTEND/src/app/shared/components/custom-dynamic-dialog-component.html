@@ -1,122 +1,149 @@
 <div class="p-6 flex flex-col items-center bg-theme shadow-inner w-full">
-  <h2 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Book Your Stay 🏨</h2>
+  <h2 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Edit Room Details 🛠️</h2>
   <p class="mb-6 text-center text-gray-700 dark:text-gray-300 max-w-2xl leading-relaxed">
-    Please provide the necessary information to complete your reservation request.
+    Adjust the properties of this room as needed.
   </p>
 
-  <div
-    class="mb-8 p-4 custome-border rounded-lg shadow-md w-full max-w-3xl text-center border border-blue-200 dark:border-blue-700">
-    <strong class="font-semibold">Initial Message:</strong> {{ initialMessage() }}
-  </div>
+  <!-- Initial message (if any) - could be used for general instructions -->
+  @if (initialMessage()) {
+    <div class="mb-8 p-4 custome-border rounded-lg shadow-md w-full max-w-3xl text-center border border-blue-200 dark:border-blue-700">
+      <strong class="font-semibold">Info:</strong> {{ initialMessage() }}
+    </div>
+  }
 
   <div class="mb-8 w-full max-w-3xl p-6 custome-border grid grid-cols-1 md:grid-cols-2 gap-6">
-    <h3 class="text-2xl font-semibold mb-4 text-center col-span-full text-gray-800 dark:text-gray-100">Your Details
-      (Editable)</h3>
+    <h3 class="text-2xl font-semibold mb-4 text-center col-span-full text-gray-800 dark:text-gray-100">Room Information</h3>
 
     <div class="col-span-full sm:col-span-1">
-      <label for="userName" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Full Name:</label>
-      <input id="userName" type="text" pInputText [(ngModel)]="_userName" placeholder="Enter your name"
+      <label for="roomNumber" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Room Number:</label>
+      <input id="roomNumber" type="text" pInputText [(ngModel)]="_roomNumber" [disabled]="true"
+        class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-800 cursor-not-allowed" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="title" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Title:</label>
+      <input id="title" type="text" pInputText [(ngModel)]="_title" placeholder="e.g., Deluxe Single Room"
         class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
-    </div>
-
-    <div class="col-span-full sm:col-span-1">
-      <label for="userEmail" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email:</label>
-      <input id="userEmail" type="email" pInputText [(ngModel)]="_userEmail" placeholder="Enter your email"
-        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
-    </div>
-
-    <div class="col-span-full sm:col-span-1">
-      <label for="selectedCategory"
-        class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category:</label>
-      <p-autoComplete id="selectedCategory" [(ngModel)]="_selectedCategory" [suggestions]="_filteredCategories()"
-        (completeMethod)="filterCategories($event)" field="name" placeholder="Select a category" [dropdown]="true"
-        class="w-full p-fluid"
-        inputStyleClass="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"></p-autoComplete>
-    </div>
-
-    <div class="col-span-full sm:col-span-1">
-      <label for="startDate" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Arrival
-        Date:</label>
-      <p-datepicker id="startDate" [(ngModel)]="_startDate" [showIcon]="true" [showButtonBar]="true" showIcon
-        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="Select a date" class="w-full p-fluid"></p-datepicker>
     </div>
 
     <div class="col-span-full">
-      <label for="description" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Message / Special
-        Request:</label>
+      <label for="description" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Description:</label>
       <textarea id="description" [(ngModel)]="_description" [rows]="4" [cols]="30"
-        placeholder="Tell us if you have any special requests or questions..."
+        placeholder="A detailed description of the room features..."
         class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
         [autoResize]="true" pTextarea></textarea>
     </div>
 
-    <div class="col-span-full">
-      <label for="tags" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Desired
-        Services:</label>
-      <p-multiSelect id="tags" [options]="_availableTags()" [(ngModel)]="_tags" optionLabel="name"
-        placeholder="Select additional services" [filter]="false" class="w-full p-fluid" display="chip"
-        panelStyleClass="shadow-md rounded-lg"></p-multiSelect>
+    <div class="col-span-full sm:col-span-1">
+      <label for="roomType" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Room Type:</label>
+      <p-autoComplete id="roomType" [(ngModel)]="_roomType" [suggestions]="_filteredRoomTypes()" (completeMethod)="filterRoomTypes($event)"
+        placeholder="Select a Room Type" [dropdown]="true" class="w-full p-fluid" />
     </div>
 
-    <div class="flex items-center mt-4 col-span-full">
-      <p-checkbox [(ngModel)]="_isSubscribed" inputId="subscribed" [binary]="true" class="mr-3"></p-checkbox>
-      <label for="subscribed" class="text-base font-medium text-gray-700 dark:text-gray-300">Subscribe to our newsletter
-        for exclusive offers</label>
+    <div class="col-span-full sm:col-span-1">
+      <label for="roomStatus" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Room Status:</label>
+      <p-autoComplete id="roomStatus" [(ngModel)]="_roomStatus" [suggestions]="_filteredRoomStatuses()" (completeMethod)="filterRoomStatuses($event)"
+        placeholder="Select Room Status" [dropdown]="true" class="w-full p-fluid" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="adultsCapacity" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Adults Capacity:</label>
+      <p-inputNumber id="adultsCapacity" [(ngModel)]="_adultsCapacity" mode="decimal" [showButtons]="true" [min]="0"
+        class="w-full" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="childrenCapacity" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Children Capacity:</label>
+      <p-inputNumber id="childrenCapacity" [(ngModel)]="_childrenCapacity" mode="decimal" [showButtons]="true" [min]="0"
+        class="w-full" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="sizeInSqMeters" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Size (sq. meters):</label>
+      <p-inputNumber id="sizeInSqMeters" [(ngModel)]="_sizeInSqMeters" mode="decimal" [showButtons]="true" [min]="0"
+        class="w-full" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="floor" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Floor:</label>
+      <p-inputNumber id="floor" [(ngModel)]="_floor" mode="decimal" [showButtons]="true" class="w-full" />
+    </div>
+
+    <div class="col-span-full">
+      <label for="bedConfiguration" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Bed Configuration:</label>
+      <input id="bedConfiguration" type="text" pInputText [(ngModel)]="_bedConfiguration" placeholder="e.g., 1 King, 2 Twin"
+        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
+    </div>
+
+    <div class="col-span-full">
+      <label for="viewType" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">View Type:</label>
+      <input id="viewType" type="text" pInputText [(ngModel)]="_viewType" placeholder="e.g., Ocean View, City View"
+        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="basePrice" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Base Price:</label>
+      <p-inputNumber id="basePrice" [(ngModel)]="_basePrice" mode="currency" currency="USD" locale="en-US" [min]="0"
+        class="w-full" />
+    </div>
+
+    <div class="col-span-full sm:col-span-1">
+      <label for="weekendPrice" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Weekend Price:</label>
+      <p-inputNumber id="weekendPrice" [(ngModel)]="_weekendPrice" mode="currency" currency="USD" locale="en-US" [min]="0"
+        class="w-full" />
+    </div>
+
+    <div class="col-span-full flex items-center mt-4">
+      <p-checkbox [(ngModel)]="_onSale" inputId="onSale" [binary]="true" class="mr-3"></p-checkbox>
+      <label for="onSale" class="text-base font-medium text-gray-700 dark:text-gray-300">On Sale</label>
+    </div>
+
+    @if (_onSale()) {
+      <div class="col-span-full">
+        <label for="salePrice" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Sale Price:</label>
+        <p-inputNumber id="salePrice" [(ngModel)]="_salePrice" mode="currency" currency="USD" locale="en-US" [min]="0"
+          class="w-full" />
+      </div>
+    }
+
+    <div class="col-span-full">
+      <label for="amenities" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Amenities:</label>
+      <p-multiSelect id="amenities" [options]="amenityOptions()" [(ngModel)]="_amenities" placeholder="Select Amenities"
+        class="w-full p-fluid" display="chip"></p-multiSelect>
+    </div>
+
+    <div class="col-span-full flex items-center mt-4">
+      <p-checkbox [(ngModel)]="_isPublished" inputId="isPublished" [binary]="true" class="mr-3"></p-checkbox>
+      <label for="isPublished" class="text-base font-medium text-gray-700 dark:text-gray-300">Is Published</label>
+    </div>
+
+    <div class="col-span-full">
+      <label for="internalNotes" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Internal Notes:</label>
+      <textarea id="internalNotes" [(ngModel)]="_internalNotes" [rows]="3" [cols]="30"
+        placeholder="Add any internal notes about this room..."
+        class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
+        [autoResize]="true" pTextarea></textarea>
     </div>
   </div>
 
-  <!-- Added mt-8 for top margin and mb-8 for bottom margin on the accordion itself -->
+  <!-- You can keep the accordion or remove it if not needed for room editing -->
   <p-accordion [(value)]="activePanel" class="w-full max-w-3xl mt-8 mb-8">
-    <app-dynamic-accordion-panel [value]="'0'" [header]="'Additional Services (Example)'">
-      <!-- Added p-6 for padding inside the accordion panel -->
+    <app-dynamic-accordion-panel [value]="'0'" [header]="'Room Pricing Details (Example)'">
       <div class="p-6">
-          <!-- Removed mb-8 from this div as the parent now has proper padding -->
-          <div class="w-full overflow-x-auto">
-            <p-table [value]="products()" [tableStyle]="{'min-width': '25rem'}"
-              class="p-datatable-gridlines p-datatable-striped rounded-lg overflow-hidden">
-              <ng-template pTemplate="header">
-                <tr class="">
-                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tl-lg">ID</th>
-                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200">Service</th>
-                  <th class="p-4 text-left font-semibold text-blue-800 dark:text-blue-200 rounded-tr-lg">Price</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-product>
-                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
-                  <td class="p-4">{{ product.id }}</td>
-                  <td class="p-4">{{ product.product }}</td>
-                  <td class="p-4">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
+        <p class="text-gray-700 dark:text-gray-300">
+          This section can display more detailed, potentially read-only, pricing breakdown or historical data.
+        </p>
+        <!-- Example: display current basePrice and weekendPrice here if desired -->
+        <div class="mt-4">
+          <p><strong>Base Price:</strong> {{ _basePrice() | currency:'USD':'symbol':'1.2-2' }}</p>
+          <p><strong>Weekend Price:</strong> {{ _weekendPrice() | currency:'USD':'symbol':'1.2-2' }}</p>
+        </div>
       </div>
     </app-dynamic-accordion-panel>
   </p-accordion>
 
-
-  <div
-    class="mb-8 w-full max-w-3xl p-6 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900 dark:to-emerald-900 rounded-xl shadow-lg border-l-4 border-teal-500 dark:border-teal-700">
-    <h3 class="text-2xl font-semibold mb-4 text-center text-teal-800 dark:text-teal-200">Important Information</h3>
-    <p class="text-gray-700 dark:text-gray-300 text-justify leading-relaxed">
-      This section provides static text or important instructions regarding the reservation process.
-      It's perfect for guidelines, disclaimers, or detailed explanations.
-      The content can be customized dynamically by passing different text via the `data` property from the parent
-      component.
-    </p>
-  </div>
-
-  <div class="mb-8 w-full max-w-lg">
-    <label for="responseMessage" class="block text-base font-medium mb-2 text-gray-700 dark:text-gray-300">Your Feedback
-      (Optional):</label>
-    <textarea id="responseMessage" [(ngModel)]="responseMessage" [rows]="4" [cols]="30"
-      placeholder="Type your feedback here..."
-      class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 transition-all duration-200 shadow-sm"
-      [autoResize]="true" pTextarea></textarea>
-  </div>
-
   <div class="flex gap-4 justify-center w-full max-w-lg">
-    <app-button buttonText="Confirm Reservation" (buttonClick)="confirmAndSend()" icon="pi pi-check mr-2"
+    <app-button buttonText="Confirm Changes" (buttonClick)="confirmAndSend()" icon="pi pi-check mr-2"
       [loading]="processing()" [severity]="'success'"
       [btnStyle]="'p-button-raised shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1'"
       variant="outlined"></app-button>

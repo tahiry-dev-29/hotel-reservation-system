@@ -36,9 +36,9 @@ export interface AuthResponse {
 }
 
 /**
- * Service pour gérer l'authentification des utilisateurs (connexion, enregistrement, gestion des tokens).
- * Utilise des signaux pour un état d'authentification et des informations utilisateur réactifs.
- * Utilise ngx-cookie-service pour le stockage persistant des données d'authentification.
+ * Service for managing staff user authentication (login, registration, token management).
+ * Uses signals for reactive authentication state and user information.
+ * Uses ngx-cookie-service for persistent storage of authentication data.
  */
 @Injectable({
   providedIn: 'root',
@@ -50,10 +50,10 @@ export class AuthService {
   private readonly TOKEN_KEY = 'jwt_token';
   private readonly USER_PROFILE_KEY = 'user_profile';
 
-  // Durée d'expiration du cookie en heures (doit correspondre à l'expiration du JWT du backend)
+  // Cookie expiry duration in hours (should match backend JWT expiry)
   private readonly COOKIE_EXPIRY_HOURS = 5;
 
-  // Signaux pour suivre l'état d'authentification global et les informations utilisateur
+  // Signals to track global authentication state and user information
   private _isAuthenticated = signal<boolean>(this.hasToken());
   isAuthenticated: Signal<boolean> = this._isAuthenticated.asReadonly();
   
@@ -61,45 +61,45 @@ export class AuthService {
   currentUserProfile: Signal<UserProfile | null> = this._currentUserProfile.asReadonly();
 
   constructor() {
-    // Les signaux sont initialisés à partir des cookies et mis à jour par les méthodes login/register/logout.
+    // Signals are initialized from cookies and updated by login/register/logout methods.
   }
 
   /**
-   * Enregistre un nouvel utilisateur staff.
-   * Met à jour les signaux internes après un enregistrement réussi.
-   * @param userData Données pour l'enregistrement de l'utilisateur.
-   * @returns Un Observable de AuthResponse. Les composants s'abonneront à cela.
+   * Registers a new staff user.
+   * Updates internal signals and handles redirection after successful registration.
+   * @param userData Data for user registration.
+   * @returns An Observable of AuthResponse. Components will subscribe to this.
    */
   register(userData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, userData).pipe(
       tap(response => {
         this.setAuthData(response.token, response.user);
-        // La redirection sera maintenant gérée dans setAuthData après que les signaux soient mis à jour
+        // Redirection handled by setAuthData
       })
     );
   }
 
   /**
-   * Connecte un utilisateur staff.
-   * Met à jour les signaux internes après une connexion réussie.
-   * @param credentials Identifiants de connexion de l'utilisateur.
-   * @returns Un Observable de AuthResponse. Les composants s'abonneront à cela.
+   * Logs in a staff user.
+   * Updates internal signals and handles redirection after successful login.
+   * @param credentials User login credentials.
+   * @returns An Observable of AuthResponse. Components will subscribe to this.
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
       tap(response => {
         this.setAuthData(response.token, response.user);
-        // La redirection sera maintenant gérée dans setAuthData après que les signaux soient mis à jour
+        // Redirection handled by setAuthData
       })
     );
   }
 
   /**
-   * Définit le token JWT et le profil utilisateur dans les cookies.
-   * Met à jour les signaux internes d'authentification.
-   * Déclenche la redirection basée sur le rôle de l'utilisateur.
-   * @param token Le token JWT à stocker.
-   * @param userProfile Le profil utilisateur à stocker.
+   * Sets the JWT token and user profile in cookies.
+   * Updates internal authentication signals.
+   * Triggers redirection based on user role.
+   * @param token The JWT token to store.
+   * @param userProfile The user profile to store.
    */
   private setAuthData(token: string, userProfile: UserProfile): void {
     const expiryDate = new Date();
@@ -111,25 +111,25 @@ export class AuthService {
     this._isAuthenticated.set(true);
     this._currentUserProfile.set(userProfile);
 
-    // LOGIQUE DE REDIRECTION CENTRALISÉE ICI
+    // CENTRALIZED REDIRECTION LOGIC
     if (userProfile.role === 'VIEWER') {
-      this.router.navigate(['/home']); // Redirige les VIEWER vers la page home
+      this.router.navigate(['/home']); // Redirect VIEWERs to the home page
     } else {
-      this.router.navigate(['/admin/dashboard']); // Redirige les ADMIN/EDITOR vers le dashboard admin
+      this.router.navigate(['/admin/dashboard']); // Redirect ADMIN/EDITOR to the admin dashboard
     }
   }
 
   /**
-   * Récupère le token JWT stocké depuis les cookies.
-   * @returns La chaîne du token JWT ou null si non trouvé.
+   * Retrieves the stored JWT token from cookies.
+   * @returns The JWT token string or null if not found.
    */
   getToken(): string | null {
     return this.cookieService.check(this.TOKEN_KEY) ? this.cookieService.get(this.TOKEN_KEY) : null;
   }
 
   /**
-   * Supprime le token JWT et le profil utilisateur des cookies.
-   * Réinitialise les signaux internes d'authentification.
+   * Removes the JWT token and user profile from cookies.
+   * Resets internal authentication signals.
    */
   removeToken(): void {
     this.cookieService.delete(this.TOKEN_KEY, '/', environment.cookieDomain);
@@ -139,16 +139,16 @@ export class AuthService {
   }
 
   /**
-   * Vérifie si un token existe dans les cookies.
-   * @returns Vrai si un token est présent, faux sinon.
+   * Checks if a token exists in cookies.
+   * @returns True if a token is present, false otherwise.
    */
   private hasToken(): boolean {
     return this.cookieService.check(this.TOKEN_KEY);
   }
 
   /**
-   * Récupère le profil utilisateur stocké depuis les cookies.
-   * @returns L'objet UserProfile ou null si non trouvé.
+   * Retrieves the stored user profile from cookies.
+   * @returns The UserProfile object or null if not found.
    */
   private getStoredUserProfile(): UserProfile | null {
     const profileString = this.cookieService.check(this.USER_PROFILE_KEY) ? this.cookieService.get(this.USER_PROFILE_KEY) : null;
@@ -156,7 +156,7 @@ export class AuthService {
   }
 
   /**
-   * Déconnecte l'utilisateur et redirige vers la page de connexion.
+   * Logs out the user and redirects to the login page.
    */
   logout(): void {
     this.removeToken();

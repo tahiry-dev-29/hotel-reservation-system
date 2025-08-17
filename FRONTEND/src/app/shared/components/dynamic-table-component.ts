@@ -6,15 +6,14 @@ import {
   model,
   OnInit,
   viewChild,
-  ElementRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 // PrimeNG Modules
-import { Table, TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table'; // TableModule contains ColumnFilter, TableHeaderCheckbox, TableCheckbox
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext'; // Corrected import
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RatingModule } from 'primeng/rating';
 import { TagModule } from 'primeng/tag';
@@ -55,7 +54,7 @@ export interface TableColumn {
   standalone: true,
   imports: [
     FormsModule,
-    TableModule,
+    TableModule, // Provides p-table, p-columnFilter, p-tableHeaderCheckbox, p-tableCheckbox directives
     ButtonModule,
     PaginatorModule,
     InputTextModule,
@@ -106,6 +105,18 @@ export class DynamicTableComponent implements OnInit {
 
   // --- HELPERS ---
   /**
+   * Handles the global filter search event from the SearchBarComponent.
+   * Calls the filterGlobal method on the PrimeNG table instance.
+   * @param value The search string.
+   */
+  onGlobalFilter(value: string): void {
+    const tableInstance = this.dt(); // Get the actual p-table instance from the signal
+    if (tableInstance) {
+      tableInstance.filterGlobal(value, 'contains');
+    }
+  }
+
+  /**
    * Formats a number of bytes into a human-readable size string.
    * @param bytes The number of bytes to format.
    * @returns A string representing the formatted size (e.g., "1.23 MB").
@@ -118,25 +129,43 @@ export class DynamicTableComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
+  /**
+   * Determines the severity (color) for a status tag based on predefined mappings or a switch case.
+   * @param status The status string to evaluate.
+   * @returns A string representing the severity ('success', 'warning', 'danger', 'info').
+   */
   getSeverityForStatus(status: string): string {
     const statusConfig = this.columns().find((c) => c.type === 'status')
       ?.statusConfig?.map;
     if (statusConfig && statusConfig[status]) {
       return statusConfig[status].severity;
     }
-    switch (status?.toLowerCase()) {
-      case 'instock':
-      case 'completed':
-      case 'active':
+    switch (status?.toUpperCase()) {
+      case 'AVAILABLE':
+      case 'COMPLETED':
+      case 'ACTIVE':
         return 'success';
-      case 'lowstock':
-      case 'pending':
+      case 'PENDING':
+      case 'LOWSTOCK':
+      case 'MAINTENANCE':
         return 'warning';
-      case 'outofstock':
-      case 'cancelled':
+      case 'OCCUPIED':
+      case 'OUTOFSTOCK':
+      case 'CANCELLED':
         return 'danger';
       default:
         return 'info';
     }
+  }
+
+  /**
+   * Safely retrieves a nested property value from an object using a dot-separated path.
+   * Example: getNestedPropertyValue(room, 'capacity.adults')
+   * @param obj The object to traverse.
+   * @param path The dot-separated path to the nested property.
+   * @returns The value of the nested property, or undefined if not found.
+   */
+  getNestedPropertyValue(obj: any, path: string): any {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
   }
 }

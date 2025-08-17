@@ -1,3 +1,4 @@
+<!-- src/app/shared/components/dynamic-table-component.html -->
 <p-card>
   <ng-template pTemplate="header">
     <p-toolbar>
@@ -7,7 +8,8 @@
 
       <div class="p-toolbar-group-end flex items-center gap-2">
         @if (showGlobalFilter()) {
-          <app-search-bar (search)="dt.filterGlobal($event, 'contains')" placeholder="Search..." [progressspinner]="true"/>
+          <!-- Call the new onGlobalFilter method in the component -->
+          <app-search-bar (search)="onGlobalFilter($event)" placeholder="Search..." [progressspinner]="true" />
         }
         @if (showColumnSelect()) {
           <p-multiSelect
@@ -37,6 +39,10 @@
     [selectionMode]="selectionMode()"
     [(selection)]="selectedItems"
     [responsiveLayout]="'scroll'"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [filterDelay]="0"
+    [dataKey]="'id'"
   >
     <ng-template pTemplate="header">
       <tr>
@@ -50,6 +56,9 @@
             {{ col.header }}
             @if(col.sortable !== false) {
               <p-sortIcon [field]="col.field"></p-sortIcon>
+            }
+            @if (showColumnFilters() && col.filterable) {
+              <p-columnFilter [type]="col.type || 'text'" [field]="col.field" display="menu" />
             }
           </th>
         }
@@ -81,7 +90,7 @@
                 <p-rating [ngModel]="rowData[col.field]" [readonly]="true"></p-rating>
               }
               @case ('progress') {
-                <p-progressBar [value]="rowData[col.field]"></p-progressBar>
+                <p-progressBar [value]="rowData[col.field]" [showValue]="false"></p-progressBar>
               }
               @case ('status') {
                 <p-tag
@@ -94,7 +103,8 @@
                 <span>{{ formatSize(rowData[col.field]) }}</span>
               }
               @default {
-                <span>{{ rowData[col.field] }}</span>
+                <!-- Handle nested properties (e.g., capacity.adults) using the helper function -->
+                <span>{{ getNestedPropertyValue(rowData, col.field) }}</span>
               }
             }
           </td>
@@ -125,7 +135,7 @@
     <ng-template pTemplate="emptymessage">
       <tr>
         <td [attr.colspan]="visibleColumns().length + (showActions() ? 1 : 0) + (selectionMode() === 'multiple' ? 1 : 0)">
-          <div class="flex flex-col items-center justify-center p-8 text-cente rounded-b-lg">
+          <div class="flex flex-col items-center justify-center p-8 text-center rounded-b-lg">
             <i class="pi pi-table text-5xl text-gray-400 mb-4"></i>
             <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">No data to display</p>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Try changing your filters or adding new items.</p>

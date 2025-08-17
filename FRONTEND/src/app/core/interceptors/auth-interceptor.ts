@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth-service';
+import { environment } from '../../../environments/environments';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -12,32 +13,30 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const token = authService.getToken();
+  // This getToken() is for staff users. We are explicitly excluding customer auth paths.
+  const staffToken = authService.getToken(); 
 
-  // Définir les chemins d'API publics qui ne nécessitent pas de token
   const publicApiPaths = [
-    '/api/auth/login',
-    '/api/auth/register',
-    '/api/customer-auth/login',
-    '/api/customer-auth/register',
-    '/api/rooms', // GET rooms sans ID
-    '/api/bookings/available-rooms',
+    `${environment.apiUrl}/auth/login`,
+    `${environment.apiUrl}/auth/register`,
+    `${environment.apiUrl}/customer-auth/login`, // NEW: Customer Login endpoint is public
+    `${environment.apiUrl}/customer-auth/register`, // NEW: Customer Register endpoint is public
+    `${environment.apiUrl}/rooms`, // Public endpoint for rooms
+    `${environment.apiUrl}/rooms/`, // Specific room details
+    `${environment.apiUrl}/bookings/available-rooms`, // Public for checking availability
   ];
 
-  // Vérifier si l'URL de la requête correspond à un chemin public
-  const isPublicApi = publicApiPaths.some(path => req.url.includes(path));
+  // Check if the current request URL starts with any of the public API paths
+  const isPublicApi = publicApiPaths.some(path => req.url.startsWith(path));
+  // Specifically allow GET for any room ID
+  const isSpecificRoomGetPublic = req.url.match(new RegExp(`^${environment.apiUrl}/rooms/[^/]+$`)) && req.method === 'GET';
 
-  // Cas spécial pour GET /api/rooms/{id} - c'est public
-  const isSpecificRoomGet = req.url.startsWith('/api/rooms/') && req.method === 'GET' && req.url.split('/').length > 3;
-  if (isSpecificRoomGet) {
-    // If it's a GET request for a specific room, it's public.
-    // No need to change isPublicApi if it is already handled by includes.
-  }
 
-  if (token && !isPublicApi) {
+  // Attach staff token only if it exists and the request is NOT to a public API
+  if (staffToken && !isPublicApi && !isSpecificRoomGetPublic) {
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${staffToken}`,
       },
     });
   }
@@ -45,14 +44,17 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
+        // If it's a 401, remove the staff token (if any) and redirect
+        // Note: Customer tokens are handled by CustomerAuthService's logout method.
+        // This interceptor primarily handles staff token invalidation.
         authService.removeToken();
 
         const currentUrl = router.url;
-
         if (currentUrl.startsWith('/admin')) {
           router.navigate(['/admin/login']);
         } else {
-          router.navigate(['/login']);
+          // If a public page or customer page received 401, redirect to customer login
+          router.navigate(['/login']); 
         }
       }
       return throwError(() => error);

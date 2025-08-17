@@ -1,16 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms'; // Import AbstractControl
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/button-component';
 import { matchValidator } from '../../validators/match-validator';
+import { CustomerAuthService, CustomerRegisterRequest } from '../../../core/services/customer-auth-service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
+  standalone: true,
   selector: 'app-register-customer',
   imports: [
     ReactiveFormsModule,
@@ -28,10 +31,10 @@ import { matchValidator } from '../../validators/match-validator';
       <div class="w-full max-w-md p-8 space-y-6 bg-theme rounded-2xl shadow-xl custome-border">
         <div class="text-center">
           <h2 class="text-3xl font-bold text-text-color">
-            Create Account
+            Create Customer Account
           </h2>
           <p class="mt-2 text-sm text-text-color-secondary">
-            Join us and start your journey!
+            Join us and start your journey as a valued customer!
           </p>
         </div>
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -41,17 +44,17 @@ import { matchValidator } from '../../validators/match-validator';
                 <label for="fullName">Full Name</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-              @if (isFieldInvalid(f['fullName'])) {
-                @if (f['fullName'].errors?.['required']) {
-                  <p-message severity="error" variant="simple" size="small">Full Name is required</p-message>
-                }
-                @if (f['fullName'].errors?.['minlength']) {
-                  <p-message severity="error" variant="simple" size="small">Full Name must be at least {{ f['fullName'].errors?.['minlength'].requiredLength }} characters</p-message>
-                }
-                @if (f['fullName'].errors?.['maxlength']) {
-                  <p-message severity="error" variant="simple" size="small">Full Name cannot exceed {{ f['fullName'].errors?.['maxlength'].requiredLength }} characters</p-message>
-                }
+            @if (isFieldInvalid(f['fullName'])) {
+              @if (f['fullName'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Full Name is required</p-message>
               }
+              @if (f['fullName'].errors?.['minlength']) {
+                <p-message severity="error" variant="simple" size="small">Full Name must be at least {{ f['fullName'].errors?.['minlength'].requiredLength }} characters</p-message>
+              }
+              @if (f['fullName'].errors?.['maxlength']) {
+                <p-message severity="error" variant="simple" size="small">Full Name cannot exceed {{ f['fullName'].errors?.['maxlength'].requiredLength }} characters</p-message>
+              }
+            }
             </div>
           </div>
           <div class="flex flex-col">
@@ -60,13 +63,13 @@ import { matchValidator } from '../../validators/match-validator';
                 <label for="email">Email</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-             @if (isFieldInvalid(f['email'])) {
-                @if (f['email'].errors?.['required']) {
-                  <p-message severity="error" variant="simple" size="small">Email is required</p-message>
-                }
-                @if (f['email'].errors?.['email']) {
-                  <p-message severity="error" variant="simple" size="small">Please enter a valid email address</p-message>
-                }
+            @if (isFieldInvalid(f['email'])) {
+              @if (f['email'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Email is required</p-message>
+              }
+              @if (f['email'].errors?.['email']) {
+                <p-message severity="error" variant="simple" size="small">Please enter a valid email address</p-message>
+              }
             }
             </div>
           </div>
@@ -97,16 +100,25 @@ import { matchValidator } from '../../validators/match-validator';
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
             @if (isFieldInvalid(f['password'])) {
-                @if (f['password'].errors?.['required']) {
-                  <p-message severity="error" variant="simple" size="small">Password is required</p-message>
-                }
-                @if (f['password'].errors?.['minlength']) {
-                  <p-message severity="error" variant="simple" size="small">Password must be at least {{ f['password'].errors?.['minlength'].requiredLength }} characters</p-message>
-                }
-                @if (f['password'].errors?.['pattern']) {
-                  <p-message severity="error" variant="simple" size="small">Password must contain at least one uppercase, one lowercase, one number, and one special character</p-message>
-                }
+              @if (f['password'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Password is required</p-message>
+              }
+              @if (f['password'].errors?.['minlength']) {
+                <p-message severity="error" variant="simple" size="small">Password must be at least {{ f['password'].errors?.['minlength'].requiredLength }} characters</p-message>
+              }
+              @if (f['password'].errors?.['pattern']) {
+                <p-message severity="error" variant="simple" size="small">Password must contain at least one uppercase, one lowercase, one number, and one special character</p-message>
+              }
             }
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <p-floatlabel variant="in">
+                <input pInputText id="phone" formControlName="phone" class="w-full rounded-full" />
+                <label for="phone">Phone (Optional)</label>
+            </p-floatlabel>
+            <div class="h-5 overflow-hidden">
+              <!-- No error message for phone if it's optional and without validation -->
             </div>
           </div>
           <div class="flex flex-col">
@@ -122,16 +134,22 @@ import { matchValidator } from '../../validators/match-validator';
                 <label for="passwordVerify">Confirm Password</label>
             </p-floatlabel>
             <div class="h-5 overflow-hidden">
-             @if (isFieldInvalid(f['passwordVerify'])) {
-                @if (f['passwordVerify'].errors?.['required']) {
-                  <p-message severity="error" variant="simple" size="small">Password confirmation is required</p-message>
-                }
-                @if (f['passwordVerify'].errors?.['passwordMismatch']) {
-                  <p-message severity="error" variant="simple" size="small">Passwords do not match</p-message>
-                }
+            @if (isFieldInvalid(f['passwordVerify'])) {
+              @if (f['passwordVerify'].errors?.['required']) {
+                <p-message severity="error" variant="simple" size="small">Password confirmation is required</p-message>
+              }
+              @if (f['passwordVerify'].errors?.['passwordMismatch']) {
+                <p-message severity="error" variant="simple" size="small">Passwords do not match</p-message>
+              }
             }
             </div>
           </div>
+          <!-- Display API error message -->
+           @if (errorMessage()) {
+          <div class="h-5 overflow-hidden">
+            <p-message severity="error" variant="simple" size="small">{{ errorMessage() }}</p-message>
+          </div>
+          }
           <app-button [loading]="loading()" [disabled]="registerForm.invalid || loading()"  [type]="'submit'" [buttonText]="'Sign Up'" [variant]="'outlined'"/>
         </form>
         <div class="text-sm text-center text-text-color-secondary">
@@ -159,47 +177,65 @@ import { matchValidator } from '../../validators/match-validator';
 })
 export class RegisterCustomerComponent {
   private fb = inject(FormBuilder);
+  private customerAuthService = inject(CustomerAuthService);
+  private router = inject(Router);
 
   loading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   registerForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)
-      // Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/)
+    password: ['', [Validators.required, Validators.minLength(8), 
+      // Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/) // Uncomment if you need strict password pattern
     ]],
+    phone: [''],
     passwordVerify: ['', [Validators.required]]
   }, { 
     validators: matchValidator('password', 'passwordVerify') 
   });
 
-  get f() {
+  get f(): { [key: string]: AbstractControl } {
     return this.registerForm.controls;
   }
 
-  /**
-   * Checks if a form control should display validation errors.
-   * A control is considered invalid for display if it's invalid and has been touched or dirtied.
-   * @param control The AbstractControl to check.
-   * @returns True if the control should display errors, false otherwise.
-   */
   isFieldInvalid(control: AbstractControl): boolean {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
+      this.errorMessage.set(null);
       return;
     }
     
     this.loading.set(true);
-    console.log('🎉 Registration in progress...', this.registerForm.value);
+    this.errorMessage.set(null);
 
-    setTimeout(() => {
-      this.loading.set(false);
-      console.log('✅ Registration successful!', this.registerForm.value);
-      console.log('Registration successful! Check the console for the form data.');
-    }, 2000); 
+    const registerRequest: CustomerRegisterRequest = {
+      fullName: this.registerForm.value.fullName as string,
+      mail: this.registerForm.value.email as string,
+      password: this.registerForm.value.password as string,
+      phone: this.registerForm.value.phone || undefined,
+      imageUrl: undefined,
+    };
+
+    this.customerAuthService.register(registerRequest).subscribe({
+      next: () => { // Removed 'response'
+        this.loading.set(false);
+        // Redirection is handled by CustomerAuthService.setAuthData
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading.set(false);
+        if (err.status === 409) {
+          this.errorMessage.set('An account with this email already exists.');
+        } else if (err.error && err.error.message) {
+          this.errorMessage.set(err.error.message);
+        } else {
+          this.errorMessage.set('An unexpected error occurred during registration.');
+        }
+      }
+    });
   }
 }

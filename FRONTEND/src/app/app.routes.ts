@@ -24,6 +24,7 @@ import { RoomDetailsPageComponents } from './features/rooms/pages/room-details-p
 import { authGuard } from './core/guards/auth-guard';
 import { LoginCustomerComponent } from './features/customers/pages/login-customer-component';
 import { RegisterCustomerComponent } from './features/customers/pages/register-customer-component';
+import { MyBookingsPageComponent } from './features/MyBooking/components/my-bookings-page-component';
 
 
 export const routes: Routes = [
@@ -50,6 +51,10 @@ export const routes: Routes = [
         path: 'room-details/:id',
         title: 'Room Details',
         component: RoomDetailsPageComponents,
+      },{
+        path: 'my-bookings',
+        title: 'My Bookings',
+        component: MyBookingsPageComponent,
       },
       {
         path: 'checkout',
