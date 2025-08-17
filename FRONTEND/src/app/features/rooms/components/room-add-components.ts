@@ -1,10 +1,9 @@
-// src/app/features/rooms/pages/room-add-components.ts
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router'; // Import Router
+import { RouterLink, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select'; // CHANGED: AutoCompleteModule to SelectModule
+import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
@@ -14,15 +13,16 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService } from 'primeng/api'; // For toasts
-import { ToastModule } from 'primeng/toast'; // For p-toast
-import { DatePickerModule } from 'primeng/datepicker'; // Use DatePickerModule as requested
-import { IconFieldModule } from 'primeng/iconfield'; // For p-iconField
-import { InputIconModule } from 'primeng/inputicon'; // For p-inputIcon
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { DatePickerModule } from 'primeng/datepicker';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { Subscription } from 'rxjs';
 
-import { RoomService, RoomCreateRequest, ROOM_TYPES, AMENITIES, ROOM_STATUSES, VIEW_TYPES, RoomType, ViewType, Amenity, RoomStatus } from '../../../core/services/room-service'; // Import types
-import { DynamicFileUploadComponent } from '../../../shared/components/dynamic-file-upload-component'; // Import the new file upload component
-import { ToggleSwitchWithLabelComponent } from "../../../shared/components/toggle-switch-with-label-component"; // Import ToggleSwitchWithLabelComponent
+import { RoomService, RoomCreateRequest, ROOM_TYPES, AMENITIES, ROOM_STATUSES, VIEW_TYPES, RoomType, ViewType, Amenity, RoomStatus } from '../../../core/services/room-service';
+import { DynamicFileUploadComponent } from '../../../shared/components/dynamic-file-upload-component';
+import { ToggleSwitchWithLabelComponent } from "../../../shared/components/toggle-switch-with-label-component";
 
 // Interface for Select/MultiSelect options
 interface SelectOption {
@@ -38,13 +38,12 @@ interface SelectOption {
     RouterLink,
     ButtonModule,
     InputTextModule,
-    SelectModule, // CHANGED: AutoCompleteModule to SelectModule
+    SelectModule,
     FloatLabelModule,
     MessageModule,
-    DatePickerModule, // Use DatePickerModule
+    DatePickerModule,
     DividerModule,
     ButtonComponent,
-    // Room specific imports
     InputNumberModule,
     CheckboxModule,
     MultiSelectModule,
@@ -55,28 +54,28 @@ interface SelectOption {
     ToggleSwitchWithLabelComponent,
     DynamicFileUploadComponent
   ],
-  templateUrl: './room-add-components.html', // Point to the new HTML
+  templateUrl: './room-add-components.html',
   styles: [`
     /* Styles for fully rounded inputs (like InputText simple) */
     :host ::ng-deep .p-inputtext {
-        border-radius: 9999px !important; 
+        border-radius: 9999px !important;
     }
     
     /* Styles for inputs that should NOT be fully rounded (Select, InputNumber, MultiSelect, DatePicker, Textarea) */
-    :host ::ng-deep .p-select .p-select-label, /* Changed selector for p-select */
+    :host ::ng-deep .p-dropdown .p-dropdown-label,
     :host ::ng-deep .p-inputnumber .p-inputnumber-input,
     :host ::ng-deep .p-multiselect .p-multiselect-label,
-    :host ::ng-deep .p-datepicker .p-inputtext, /* Target p-datepicker input specifically */
+    :host ::ng-deep .p-datepicker .p-inputtext,
     :host ::ng-deep .p-inputtextarea {
-      border-radius: 0.5rem !important; /* Small rounded corners for these fields */
-      width: 100%; /* Ensure they take full width if needed */
+      border-radius: 0.5rem !important;
+      width: 100%;
     }
 
     /* Ensure float labels work with full width */
     :host ::ng-deep .p-floatlabel > .p-inputtext,
     :host ::ng-deep .p-floatlabel > .p-inputnumber,
-    :host ::ng-deep .p-floatlabel > .p-select, /* Changed selector for p-select */
-    :host ::ng-deep .p-floatlabel > .p-datepicker, /* Target p-datepicker here */
+    :host ::ng-deep .p-floatlabel > .p-dropdown,
+    :host ::ng-deep .p-floatlabel > .p-datepicker,
     :host ::ng-deep .p-floatlabel > .p-multiselect,
     :host ::ng-deep .p-floatlabel > .p-inputtextarea {
         width: 100%;
@@ -90,86 +89,83 @@ interface SelectOption {
     :host ::ng-deep .p-multiselect-panel .p-checkbox {
       margin-right: 0.5rem;
     }
+
+    /* Styles for p-toast to ensure higher z-index (already there, confirmed) */
+    :host ::ng-deep .p-toast {
+      z-index: 1100 !important;
+    }
   `],
-  providers: [MessageService] // Provide MessageService for toasts
+  providers: [MessageService]
 })
-export class RoomAddComponents {
+export class RoomAddComponents implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private roomService = inject(RoomService); // Inject RoomService
-  private messageService = inject(MessageService); // Inject MessageService
-  private router = inject(Router); // Inject Router for navigation
+  private roomService = inject(RoomService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
 
   loading = signal(false);
-  selectedFiles: File[] = []; // To hold files from DynamicFileUploadComponent
+  selectedFiles: File[] = [];
+  private subscriptions: Subscription = new Subscription();
 
-  // Options for dropdowns/multiselects using SelectOption interface for consistency with name/value
   roomTypeOptions: SelectOption[] = ROOM_TYPES.map(type => ({ name: type, value: type }));
   amenityOptions: SelectOption[] = AMENITIES.map(amenity => ({ name: amenity, value: amenity }));
   roomStatusOptions: SelectOption[] = ROOM_STATUSES.map(status => ({ name: status, value: status }));
   viewTypeOptions: SelectOption[] = VIEW_TYPES.map(type => ({ name: type, value: type }));
 
-  // Removed filtered options for autocomplete as p-select doesn't use them
-  // filteredRoomTypes: SelectOption[] = [];
-  // filteredRoomStatuses: SelectOption[] = [];
-  // filteredViewTypes: SelectOption[] = [];
-
-  // Initialize form with ALL fields expected by RoomCreateRequest DTO
   roomForm = this.fb.group({
-    roomNumber: ['', [Validators.required, Validators.pattern(/^[0-9A-Z]{3,6}$/)]], // e.g., "101", "A203"
+    roomNumber: ['', [Validators.required, Validators.pattern(/^[0-9A-Z]{3,6}$/)]],
     title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
     description: ['', [Validators.minLength(10), Validators.maxLength(500)]],
-    
-    // New fields from your provided template that might not map directly to RoomCreateRequest
-    location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], // No direct mapping in RoomCreateRequest
-    availableFrom: [null as Date | null, [Validators.required]], // No direct mapping in RoomCreateRequest
-
-    // Now storing string values directly, using optionValue in HTML
-    roomType: [null as string | null, Validators.required], // Stocke la string (value de SelectOption)
+    location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+    availableFrom: [null as Date | null, [Validators.required]],
+    roomType: [null as string | null, Validators.required],
     adultsCapacity: [1, [Validators.required, Validators.min(1)]],
     childrenCapacity: [0, [Validators.min(0)]],
     sizeInSqMeters: [null as number | null, [Validators.min(10)]],
     floor: [null as number | null, [Validators.min(0)]],
     bedConfiguration: ['', Validators.required],
-    viewType: [null as string | null, Validators.required], // Stocke la string (value de SelectOption)
-    
-    // 'price' from your template will map to 'basePrice'
-    price: [null as number | null, [Validators.required, Validators.min(0.01)]], // Corresponds to basePrice
-    basePrice: [null as number | null], // Placeholder, will be set from 'price'
+    viewType: [null as string | null, Validators.required],
+    price: [null as number | null, [Validators.required, Validators.min(0.01)]],
+    basePrice: [null as number | null],
     weekendPrice: [null as number | null, [Validators.min(0)]],
-    
     onSale: [false],
-    salePrice: [null as number | null, Validators.min(0)], // Validated based on onSale later
-    
-    amenities: [[] as string[]], // Stocke un tableau de strings (value de SelectOption)
-    roomStatus: [null as string | null, Validators.required], // Stocke la string (value de SelectOption)
-    
-    // 'inStock' from your template will map to 'isPublished'
-    inStock: [true], // From your template, assuming it maps to isPublished
-    isPublished: [true], // Placeholder, will be set from 'inStock'
-    
+    salePrice: [null as number | null, Validators.min(0)],
+    amenities: [[] as string[]],
+    roomStatus: [null as string | null, Validators.required],
+    inStock: [true],
+    isPublished: [true],
     internalNotes: [''],
   });
 
-  constructor() {
-    // Conditional validation for salePrice
-    this.roomForm.get('onSale')?.valueChanges.subscribe(onSale => {
-      const salePriceControl = this.roomForm.get('salePrice');
-      if (onSale) {
-        salePriceControl?.setValidators([Validators.required, Validators.min(0)]);
-      } else {
-        salePriceControl?.clearValidators();
-        salePriceControl?.setValue(null); // Clear value if not on sale
-      }
-      salePriceControl?.updateValueAndValidity();
-    });
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.roomForm.get('onSale')?.valueChanges.subscribe(onSale => {
+        const salePriceControl = this.roomForm.get('salePrice');
+        if (onSale) {
+          salePriceControl?.setValidators([Validators.required, Validators.min(0)]);
+        } else {
+          salePriceControl?.clearValidators();
+          salePriceControl?.setValue(null);
+        }
+        salePriceControl?.updateValueAndValidity();
+      })
+    );
 
-    // Map 'price' to 'basePrice' and 'inStock' to 'isPublished' before submission
-    this.roomForm.get('price')?.valueChanges.subscribe(price => {
-      this.roomForm.get('basePrice')?.setValue(price);
-    });
-    this.roomForm.get('inStock')?.valueChanges.subscribe(inStock => {
-      this.roomForm.get('isPublished')?.setValue(inStock);
-    });
+    this.subscriptions.add(
+      this.roomForm.get('price')?.valueChanges.subscribe(price => {
+        this.roomForm.get('basePrice')?.setValue(price);
+      })
+    );
+
+    this.subscriptions.add(
+      this.roomForm.get('inStock')?.valueChanges.subscribe(inStock => {
+        this.roomForm.get('isPublished')?.setValue(inStock);
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   get f() {
@@ -180,22 +176,18 @@ export class RoomAddComponents {
     return control.invalid && (control.dirty || control.touched);
   }
 
-
-  // --- File upload event handler ---
   onFilesReady(files: File[]) {
     this.selectedFiles = files;
-    console.log('Selected files ready:', this.selectedFiles);
   }
 
   onSubmit() {
     if (this.roomForm.invalid) {
       this.roomForm.markAllAsTouched();
-      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fill all required fields correctly.' });
       return;
     }
 
     this.loading.set(true);
-    this.messageService.add({ severity: 'info', summary: 'Creating Room', detail: 'Please wait...' });
+    this.messageService.add({ severity: 'info', summary: 'Creating Room', detail: 'Please wait...',closable: true });
 
     const formValue = this.roomForm.value;
 
@@ -203,7 +195,6 @@ export class RoomAddComponents {
       roomNumber: formValue.roomNumber!,
       title: formValue.title!,
       description: formValue.description || '',
-      // Les valeurs sont déjà des strings grâce à optionValue="value" dans le HTML
       roomType: formValue.roomType as RoomType,
       capacity: {
         adults: formValue.adultsCapacity!,
@@ -213,31 +204,26 @@ export class RoomAddComponents {
       floor: formValue.floor ?? undefined,
       bedConfiguration: formValue.bedConfiguration!,
       viewType: formValue.viewType as ViewType,
-      basePrice: formValue.basePrice!, // This now comes from 'price' field
+      basePrice: formValue.basePrice!,
       weekendPrice: formValue.weekendPrice ?? undefined,
       onSale: formValue.onSale!,
       salePrice: formValue.salePrice ?? undefined,
-      // Le tableau est déjà de strings
       amenities: formValue.amenities as Amenity[] || [],
       roomStatus: formValue.roomStatus as RoomStatus,
-      isPublished: formValue.isPublished!, // This now comes from 'inStock' field
+      isPublished: formValue.isPublished!,
       internalNotes: formValue.internalNotes || '',
     };
-
 
     this.roomService.createRoom(roomCreateRequest, this.selectedFiles).subscribe({
       next: (response) => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Room ${response.roomNumber} created successfully! 🎉` });
-        this.roomForm.reset(); // Reset the form
-        this.selectedFiles = []; // Clear selected files
-        // Optionally navigate back to room list or show confirmation
+        this.roomForm.reset();
+        this.selectedFiles = [];
         this.router.navigate(['/admin/rooms/list']);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Room ${response.roomNumber} created successfully! 🎉`, closable: true });
       },
       error: (error) => {
         this.loading.set(false);
-        console.error('Error creating room:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create room. ' + (error.error?.message || error.message) });
       }
     });
   }

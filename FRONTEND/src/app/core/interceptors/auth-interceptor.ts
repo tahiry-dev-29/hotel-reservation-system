@@ -42,6 +42,7 @@ export const authInterceptor: HttpInterceptorFn = (
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${staffToken}`,
+        Accept: 'application/json',
       },
     });
   }
@@ -59,8 +60,18 @@ export const authInterceptor: HttpInterceptorFn = (
           router.navigate(['/admin/login']);
         } else {
           // If a public page or customer page received 401, redirect to customer login
-          router.navigate(['/login']); 
+          router.navigate(['/login']);
         }
+      } else if (error.status === 403) {
+        // If it's a 403, the user is authenticated but not authorized.
+        // Log the user's role to help diagnose the issue.
+        const userProfile = authService.currentUserProfile();
+        const userRole = userProfile ? userProfile.role : 'Unknown';
+        console.error(
+          `Authorization Error (403): Access denied for URL ${req.url}. User Role: ${userRole}.`
+        );
+        // Optionally, you could use a toast/notification service to show a user-friendly message.
+        // e.g., this.messageService.add({ severity: 'error', summary: 'Access Denied', detail: 'You do not have permission to perform this action.' });
       }
       return throwError(() => error);
     })

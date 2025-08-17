@@ -1,6 +1,5 @@
-<!-- src/app/features/rooms/pages/room-add-page-component.html -->
+<p-toast class="sticky! bottom-0!"/>
 <div class="space-y-6 p-4">
-  <p-toast></p-toast> <!-- Add toast for messages -->
   <div class="flex justify-between items-center">
     <h2 class="text-2xl font-bold text-text-color">Create New Room 🏨</h2>
     <a routerLink="../list">
@@ -378,7 +377,7 @@
         <p-button label="Cancel" styleClass="p-button-text" routerLink="../list"></p-button>
         <app-button
             [loading]="loading()"
-            [disabled]="roomForm.invalid || loading()"
+            [disabled]="loading()"
             [type]="'submit'"
             [buttonText]="'Create Room'"
             icon="pi pi-plus"
@@ -387,4 +386,6 @@
       </div>
     </form>
   </div>
+
+
 </div>
