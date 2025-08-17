@@ -4,6 +4,7 @@ import com.hotel.app.room.model.Amenity;
 import com.hotel.app.room.model.Capacity;
 import com.hotel.app.room.model.RoomStatus;
 import com.hotel.app.room.model.RoomType;
+import com.hotel.app.room.model.ViewType; // Import ViewType
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,7 +33,7 @@ public class RoomUpdateRequest {
 
     private Integer floor;
     private String bedConfiguration;
-    private String viewType;
+    private ViewType viewType; // Changed to ViewType enum
 
     @Min(value = 0, message = "Le prix de base ne peut pas être négatif.")
     private Double basePrice;

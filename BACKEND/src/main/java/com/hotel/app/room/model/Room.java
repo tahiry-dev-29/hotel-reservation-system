@@ -69,8 +69,9 @@ public class Room {
     @Column(name = "bed_configuration", nullable = false)
     private String bedConfiguration;
 
+    @Enumerated(EnumType.STRING) // Use EnumType.STRING for ViewType
     @Column(name = "view_type") // Optional: View type
-    private String viewType;
+    private ViewType viewType; // Changed to ViewType enum
 
     @NotNull(message = "Le prix de base est obligatoire.")
     @Min(value = 0, message = "Le prix de base ne peut pas être négatif.")
