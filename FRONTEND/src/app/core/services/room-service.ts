@@ -182,7 +182,7 @@ export class RoomService {
   ): Observable<Room[]> {
     let params = new HttpParams()
       .set('checkInDate', checkInDate)
-      .set('checkOutDate', checkInDate) // Fixed: use checkOutDate
+      .set('checkOutDate', checkOutDate) // Fixed: use checkOutDate
       .set('numAdults', numAdults.toString());
 
     if (numChildren !== undefined) {

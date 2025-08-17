@@ -1,0 +1,33 @@
+<div class="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="w-full max-w-4xl p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-8">Confirm Your Reservation</h1>
+    @if (room(); as roomData) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h2 class="text-2xl font-bold mb-4">{{ roomData.title }}</h2>
+          <img [src]="roomData.imageUrls[0]" alt="{{ roomData.title }}" class="w-full h-auto rounded-lg mb-4">
+          <p>{{ roomData.description }}</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-4">Your Reservation Details</h3>
+          @if (bookingDetails(); as details) {
+            <div class="space-y-2 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <p><strong>Check-in:</strong> {{ details.checkInDate | date: 'fullDate' }}</p>
+              <p><strong>Check-out:</strong> {{ details.checkOutDate | date: 'fullDate' }}</p>
+              <p><strong>Adults:</strong> {{ details.numAdults }}</p>
+              <p><strong>Children:</strong> {{ details.numChildren }}</p>
+            </div>
+          }
+          <div class="mt-4">
+            <label for="notes" class="block mb-2 font-semibold">Notes (optional)</label>
+            <textarea id="notes" [(ngModel)]="notes" rows="4" pTextarea [autoResize]="true" class="w-full"></textarea>
+          </div>
+          <div class="mt-6 flex justify-end">
+            <p-button label="Confirm Reservation" (onClick)="confirmBooking()" icon="pi pi-check" styleClass="p-button-success"></p-button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <p-toast></p-toast>
+</div>

@@ -25,6 +25,8 @@ import { authGuard } from './core/guards/auth-guard';
 import { LoginCustomerComponent } from './features/customers/pages/login-customer-component';
 import { RegisterCustomerComponent } from './features/customers/pages/register-customer-component';
 import { MyBookingsPageComponent } from './features/MyBooking/components/my-bookings-page-component';
+import { ReservationPageComponent } from './features/checkout/pages/reservation-page.component';
+import { customerAuthGuard } from './core/guards/customer-auth.guard';
 
 
 export const routes: Routes = [
@@ -60,6 +62,12 @@ export const routes: Routes = [
         path: 'checkout',
         title: 'Checkout',
         component: CheckoutPageComponents,
+      },
+      {
+        path: 'reservation',
+        title: 'Reservation',
+        component: ReservationPageComponent,
+        canActivate: [customerAuthGuard],
       },
       {
         path: 'login',
