@@ -4,6 +4,7 @@ public enum RoomType {
     SINGLE,
     DOUBLE,
     SUITE,
+    FAMILY, // Added FAMILY
     APT, // Apartment
     HSE, // House
     STD, // Studio

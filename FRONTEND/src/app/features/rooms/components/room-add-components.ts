@@ -116,8 +116,6 @@ export class RoomAddComponents implements OnInit, OnDestroy {
     roomNumber: ['', [Validators.required, Validators.pattern(/^[0-9A-Z]{3,6}$/)]],
     title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
     description: ['', [Validators.minLength(10), Validators.maxLength(500)]],
-    location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-    availableFrom: [null as Date | null, [Validators.required]],
     roomType: [null as string | null, Validators.required],
     adultsCapacity: [1, [Validators.required, Validators.min(1)]],
     childrenCapacity: [0, [Validators.min(0)]],
@@ -132,7 +130,6 @@ export class RoomAddComponents implements OnInit, OnDestroy {
     salePrice: [null as number | null, Validators.min(0)],
     amenities: [[] as string[]],
     roomStatus: [null as string | null, Validators.required],
-    inStock: [true],
     isPublished: [true],
     internalNotes: [''],
   });
@@ -154,12 +151,6 @@ export class RoomAddComponents implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.roomForm.get('price')?.valueChanges.subscribe(price => {
         this.roomForm.get('basePrice')?.setValue(price);
-      })
-    );
-
-    this.subscriptions.add(
-      this.roomForm.get('inStock')?.valueChanges.subscribe(inStock => {
-        this.roomForm.get('isPublished')?.setValue(inStock);
       })
     );
   }

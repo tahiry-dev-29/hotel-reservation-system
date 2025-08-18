@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, output, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MenuItem } from 'primeng/api';
@@ -6,6 +6,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuComponent } from '../../../shared/components/menu-component';
+import { AuthService } from '../../../../app/core/services/auth-service';
 
 
 @Component({
@@ -48,6 +49,7 @@ import { MenuComponent } from '../../../shared/components/menu-component';
 })
 export class DashboardNavbarComponent {
   toggleSidebar = output<void>();
+  private authService = inject(AuthService);
 
   profileMenuItems = signal<MenuItem[]>([
     { label: 'Profile', icon: 'pi pi-user', command: () => this.navigateToProfile() },
@@ -59,8 +61,8 @@ export class DashboardNavbarComponent {
   constructor(private router: Router) {}
 
   onLogout(): void {
-    console.log('User logging out...');
-    this.router.navigate(['/login']);
+    this.authService.logout();
+    this.router.navigate(['/login'])
   }
 
   navigateToProfile(): void {

@@ -69,31 +69,6 @@
           </div>
         </div>
 
-        <!-- Location (from your provided template, no direct DTO mapping) -->
-        <div class="flex flex-col">
-          <p-floatlabel variant="on">
-            <p-iconfield iconPosition="left">
-                <input pInputText id="location" formControlName="location"
-                    [invalid]="isFieldInvalid(f['location'])" required class="w-full rounded-full" />
-                <p-inputicon class="pi pi-map-marker" />
-            </p-iconfield>
-            <label for="location">Location</label>
-          </p-floatlabel>
-          <div class="h-5 overflow-hidden">
-            @if (isFieldInvalid(f['location'])) {
-              @if (f['location'].errors?.['required']) {
-                <p-message severity="error" variant="simple" size="small">Location is required</p-message>
-              }
-              @if (f['location'].errors?.['minlength']) {
-                <p-message severity="error" variant="simple" size="small">Location must be at least {{ f['location'].errors?.['minlength'].requiredLength }} characters</p-message>
-              }
-              @if (f['location'].errors?.['maxlength']) {
-                <p-message severity="error" variant="simple" size="small">Location cannot exceed {{ f['location'].errors?.['maxlength'].requiredLength }} characters</p-message>
-              }
-            }
-          </div>
-        </div>
-
         <!-- Room Type -->
         <div class="flex flex-col">
           <p-floatlabel variant="on">
@@ -329,32 +304,11 @@
           </p-floatlabel>
         </div>
         
-        <!-- Available From -->
-        <div class="flex flex-col">
-           <p-floatlabel variant="on"> 
-                        <p-datepicker id="availableFrom" formControlName="availableFrom" 
-                            [invalid]="isFieldInvalid(f['availableFrom'])" [showIcon]="true" [showButtonBar]="true"
-                            iconDisplay="input" dateFormat="dd/mm/yy" placeholder="Select a Date"
-                            class="w-full"></p-datepicker>
-                        <label for="availableFrom">Available From</label>
-                    </p-floatlabel>
-          <div class="h-5 overflow-hidden">
-              @if (isFieldInvalid(f['availableFrom'])) {
-              @if (f['availableFrom'].errors?.['required']) {
-              <p-message severity="error" variant="simple" size="small">Availability date is
-                  required</p-message>
-              }
-              }
-          </div>
-        </div>
-
         <!-- Is Published Checkbox -->
         <div class="flex items-center col-span-full">
           <p-checkbox formControlName="isPublished" inputId="isPublished" [binary]="true" class="mr-3"></p-checkbox>
           <label for="isPublished" class="text-base font-medium text-gray-700 dark:text-gray-300">Is Published</label>
         </div>
-        <!-- In Stock Toggle (from your provided template, mapped to isPublished) -->
-        <app-toggle-switch-with-label [control]="f['inStock']" label="In Stock" uniqueId="inStockSwitch" />
 
         <!-- Internal Notes -->
         <div class="flex flex-col col-span-full">

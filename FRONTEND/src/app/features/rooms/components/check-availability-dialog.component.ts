@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -15,7 +15,6 @@ import { MessageModule } from 'primeng/message';
   selector: 'app-check-availability-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,
@@ -24,7 +23,7 @@ import { MessageModule } from 'primeng/message';
     ToastModule,
     DividerModule,
     MessageModule
-  ],
+],
   providers: [MessageService],
   templateUrl: './check-availability-dialog.component.html',
   styles: [`

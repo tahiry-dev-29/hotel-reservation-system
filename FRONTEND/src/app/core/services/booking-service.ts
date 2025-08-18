@@ -34,4 +34,8 @@ export class BookingService {
   createBooking(bookingRequest: BookingCreateRequest): Observable<Booking> {
     return this.http.post<Booking>(`${environment.apiUrl}/bookings`, bookingRequest);
   }
+
+  getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${environment.apiUrl}/bookings/by-customer/${customerId}`);
+  }
 }

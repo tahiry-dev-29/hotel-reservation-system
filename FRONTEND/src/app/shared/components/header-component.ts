@@ -1,15 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
+import { CustomerAuthService } from '../../core/services/customer-auth-service';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, ToolbarModule, ButtonModule],
+  imports: [RouterLink, RouterLinkActive, ToolbarModule, ButtonModule, ConfirmPopupModule, ToastModule],
+  providers: [ConfirmationService, MessageService],
   template: `
     <header class="top-0 left-0 p-2 sm:p-4">
       <nav
-        class="max-w-screen-xl mx-auto bg-surface-50/60 dark:bg-surface-800/60 backdrop-blur-xl flex justify-between items-center shadow-2xl border border-surface-200/50 dark:border-surface-700/50 p-2 sm:p-3 rounded-full h-16 md:h-20"
+        class="max-w-screen-xl mx-auto bg-surface-50/60 dark:bg-surface-800/60 backdrop-blur-xl flex justify-between items-center shadow-2xl border border-surface-200/50 dark:border-700/50 p-2 sm:p-3 rounded-full h-16 md:h-20"
       >
         <div class="flex items-center space-x-2 pl-2 md:pl-4">
           <a
@@ -36,16 +41,29 @@ import { ButtonModule } from 'primeng/button';
         </div>
 
         <div class="hidden md:flex items-center space-x-2 pr-2">
-          <p-button
-            label="Login"
-            styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50"
-            routerLink="/login"
-          ></p-button>
-          <p-button
-            label="Sign Up"
-            styleClass="p-button-raised p-button-sm text-white! bg-primary-600! hover:bg-primary-700! dark:bg-primary-500! dark:hover:bg-primary-600!"
-            routerLink="/register" [rounded]="true"
-          ></p-button>
+          @if (isAuthenticated()) {
+            <p-button
+              label="My Bookings"
+              styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50"
+              routerLink="/my-bookings"
+            ></p-button>
+            <p-button
+              label="Logout"
+              styleClass="p-button-raised p-button-sm text-white! bg-primary-600! hover:bg-primary-700! dark:bg-primary-500! dark:hover:bg-primary-600!"
+              (onClick)="confirmLogout($event)" [rounded]="true"
+            ></p-button>
+          } @else {
+            <p-button
+              label="Login"
+              styleClass="p-button-text text-surface-700 dark:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50"
+              routerLink="/login"
+            ></p-button>
+            <p-button
+              label="Sign Up"
+              styleClass="p-button-raised p-button-sm text-white! bg-primary-600! hover:bg-primary-700! dark:bg-primary-500! dark:hover:bg-primary-600!"
+              routerLink="/register" [rounded]="true"
+            ></p-button>
+          }
         </div>
 
         <div class="md:hidden pr-1">
@@ -76,22 +94,37 @@ import { ButtonModule } from 'primeng/button';
             }
             <hr class="my-2 w-full border-surface-200/80 dark:border-surface-700/80" />
             <div class="w-full flex flex-col space-y-2">
-               <p-button
-                label="Login"
-                styleClass="p-button-text w-full text-surface-700 dark:text-surface-300"
-                routerLink="/login" (onClick)="toggleMobileMenu()"
-              ></p-button>
-              <p-button
-                label="Sign Up"
-                styleClass="p-button-raised w-full"
-                routerLink="/register" (onClick)="toggleMobileMenu()"
-              ></p-button>
+              @if (isAuthenticated()) {
+                <p-button
+                  label="My Bookings"
+                  styleClass="p-button-text w-full text-surface-700 dark:text-surface-300"
+                  routerLink="/my-bookings" (onClick)="toggleMobileMenu()"
+                ></p-button>
+                <p-button
+                  label="Logout"
+                  styleClass="p-button-raised w-full"
+                  (onClick)="confirmLogout($event)" (onClick)="toggleMobileMenu()"
+                ></p-button>
+              } @else {
+                <p-button
+                  label="Login"
+                  styleClass="p-button-text w-full text-surface-700 dark:text-surface-300"
+                  routerLink="/login" (onClick)="toggleMobileMenu()"
+                ></p-button>
+                <p-button
+                  label="Sign Up"
+                  styleClass="p-button-raised w-full"
+                  routerLink="/register" (onClick)="toggleMobileMenu()"
+                ></p-button>
+              }
             </div>
           </nav>
         </div>
       </div>
       }
     </header>
+    <p-toast></p-toast>
+    <p-confirmpopup></p-confirmpopup>
   `,
   styles: ``
 })
@@ -102,8 +135,28 @@ export class HeaderComponent {
   ];
 
   isMobileMenuOpen = signal(false);
+  private customerAuthService = inject(CustomerAuthService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+  isAuthenticated = this.customerAuthService.isAuthenticated;
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen.update((val) => !val);
   }
+
+  confirmLogout(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to log out?',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.customerAuthService.logout();
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have been logged out.', life: 3000 });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'Logout cancelled.', life: 3000 });
+      }
+    });
+  }
+
 }

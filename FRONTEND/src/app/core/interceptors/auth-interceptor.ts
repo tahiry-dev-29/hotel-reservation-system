@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth-service';
+import { CustomerAuthService } from '../services/customer-auth-service';
 import { environment } from '../../../environments/environments';
 
 export const authInterceptor: HttpInterceptorFn = (
@@ -11,37 +12,44 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
+  const customerAuthService = inject(CustomerAuthService);
   const router = inject(Router);
 
-  // This getToken() is for staff users. We are explicitly excluding customer auth paths.
+  // Get both staff and customer tokens
   const staffToken = authService.getToken(); 
+  const customerToken = customerAuthService.getToken();
 
   // Paths that are ALWAYS public, regardless of method (authentication not required at all)
   const alwaysPublicPaths = [
     `${environment.apiUrl}/auth/login`,
     `${environment.apiUrl}/auth/register`,
-    `${environment.apiUrl}/customer-auth/login`, // Customer Login endpoint is public
-    `${environment.apiUrl}/customer-auth/register`, // Customer Register endpoint is public
-    `${environment.apiUrl}/bookings/available-rooms`, // Public for checking availability
+    `${environment.apiUrl}/customer-auth/login`,
+    `${environment.apiUrl}/customer-auth/register`,
+    `${environment.apiUrl}/bookings/available-rooms`,
   ];
 
   // Check if the current request URL starts with any of the always public API paths
   const isAlwaysPublicApi = alwaysPublicPaths.some(path => req.url.startsWith(path));
 
-  // Special case: GET requests to /api/rooms (all rooms) or /api/rooms/{id} (single room) are public
-  // This needs to be precise so other methods (POST, PUT, DELETE) on /api/rooms are not skipped.
+  // Special case: GET requests to rooms are public for viewing
   const isRoomGetPublic = req.method === 'GET' && (
-    req.url === `${environment.apiUrl}/rooms` || // Matches exact path for all rooms
-    req.url.match(new RegExp(`^${environment.apiUrl}/rooms/[^/]+$`)) // Matches /rooms/{id}
+    req.url === `${environment.apiUrl}/rooms` ||
+    req.url.startsWith(`${environment.apiUrl}/rooms/`)
   );
 
-  // Attach staff token only if it exists AND the request is NOT an always public API
-  // AND it's NOT a public GET request for rooms.
-  // This ensures that DELETE, POST, PUT requests to /api/rooms/** receive the token.
-  if (staffToken && !isAlwaysPublicApi && !isRoomGetPublic) {
+  // Determine which token to use, prioritizing staff token if both exist
+  let tokenToAttach: string | null = null;
+  if (staffToken) {
+    tokenToAttach = staffToken;
+  } else if (customerToken) {
+    tokenToAttach = customerToken;
+  }
+
+  // Attach token only if it exists AND the request is NOT a public API call
+  if (tokenToAttach && !isAlwaysPublicApi && !isRoomGetPublic) {
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${staffToken}`,
+        Authorization: `Bearer ${tokenToAttach}`,
         Accept: 'application/json',
       },
     });
@@ -50,28 +58,33 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // If it's a 401, remove the staff token (if any) and redirect
-        // Note: Customer tokens are handled by CustomerAuthService's logout method.
-        // This interceptor primarily handles staff token invalidation.
-        authService.removeToken();
-
+        // If it's a 401, remove the correct token and redirect
         const currentUrl = router.url;
+
         if (currentUrl.startsWith('/admin')) {
+          // If we are on an admin page, it's a staff token that's invalid
+          authService.removeToken();
           router.navigate(['/admin/login']);
         } else {
-          // If a public page or customer page received 401, redirect to customer login
+          // Otherwise, it's a customer token that's invalid
+          customerAuthService.removeToken();
           router.navigate(['/login']);
         }
       } else if (error.status === 403) {
-        // If it's a 403, the user is authenticated but not authorized.
-        // Log the user's role to help diagnose the issue.
+        // Log the user's role on 403 error for better debugging
         const userProfile = authService.currentUserProfile();
-        const userRole = userProfile ? userProfile.role : 'Unknown';
+        const customerProfile = customerAuthService.currentCustomerProfile();
+        let userRole: string = 'Unknown';
+        
+        if (userProfile) {
+          userRole = userProfile.role;
+        } else if (customerProfile) {
+          userRole = customerProfile.role;
+        }
+
         console.error(
           `Authorization Error (403): Access denied for URL ${req.url}. User Role: ${userRole}.`
         );
-        // Optionally, you could use a toast/notification service to show a user-friendly message.
-        // e.g., this.messageService.add({ severity: 'error', summary: 'Access Denied', detail: 'You do not have permission to perform this action.' });
       }
       return throwError(() => error);
     })

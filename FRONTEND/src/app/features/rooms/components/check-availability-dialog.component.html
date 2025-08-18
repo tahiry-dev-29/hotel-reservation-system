@@ -24,13 +24,19 @@
   </form>
 
   <div class="mt-4">
-    <p-message *ngIf="availabilityResult() === 'available'" severity="success" text="This room is available!"></p-message>
+    @if (availabilityResult() === 'available') {
+      <p-message severity="success" text="This room is available!"></p-message>
+    }
   </div>
 
-  <p-divider *ngIf="availabilityResult() !== 'initial'"></p-divider>
+  @if (availabilityResult() !== 'initial') {
+    <p-divider></p-divider>
+  }
 
-  <div class="flex justify-end mt-4" *ngIf="availabilityResult() === 'available'">
-    <p-button label="Reserve" (onClick)="reserve()"></p-button>
-  </div>
+  @if (availabilityResult() === 'available') {
+    <div class="flex justify-end mt-4">
+      <p-button label="Reserve" (onClick)="reserve()"></p-button>
+    </div>
+  }
 </div>
 <p-toast></p-toast>
