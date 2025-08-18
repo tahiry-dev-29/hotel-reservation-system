@@ -1,14 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-custom-confirm-dialog',
   imports: [
-    CommonModule,
     ButtonModule
-  ],
+],
   template: `
     <div class="p-6 text-center bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
       <h2 class="text-xl font-semibold mb-6 text-gray-800 dark:text-gray-200">{{ message() }}</h2>

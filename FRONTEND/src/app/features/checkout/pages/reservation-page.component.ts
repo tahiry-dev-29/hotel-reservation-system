@@ -9,6 +9,7 @@ import { BookingService, BookingCreateRequest } from '../../../core/services/boo
 import { CustomerAuthService } from '../../../core/services/customer-auth-service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { environment } from '../../../../environments/environments'; // Import environment
 
 @Component({
   selector: 'app-reservation-page',
@@ -42,7 +43,11 @@ export class ReservationPageComponent implements OnInit {
 
       if (roomId) {
         this.roomService.getRoomById(roomId).subscribe(room => {
-          this.room.set(room);
+          // Construct full image URLs
+          this.room.set({
+            ...room,
+            imageUrls: room.imageUrls.map(url => `${environment.fileUrl}/${url}`)
+          });
         });
       }
 
@@ -54,6 +59,7 @@ export class ReservationPageComponent implements OnInit {
 
   confirmBooking() {
     const customer = this.customerAuthService.currentCustomerProfile();
+    console.log('Customer in confirmBooking:', customer);
     if (!customer) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'You must be logged in to make a reservation.' });
       return;

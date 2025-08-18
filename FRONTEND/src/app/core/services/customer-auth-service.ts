@@ -31,7 +31,7 @@ export interface CustomerProfile {
 
 export interface CustomerAuthResponse {
   token: string;
-  customer: CustomerProfile;
+  user: CustomerProfile;
 }
 
 /**
@@ -70,7 +70,7 @@ export class CustomerAuthService {
   register(userData: CustomerRegisterRequest): Observable<CustomerAuthResponse> {
     return this.http.post<CustomerAuthResponse>(`${environment.apiUrl}/customer-auth/register`, userData).pipe(
       tap(response => {
-        this.setAuthData(response.token, response.customer);
+        this.setAuthData(response.token, response.user);
         // Redirection after registration
         this.router.navigate(['/my-bookings']); // Redirect customers to their bookings page or home
       })
@@ -86,7 +86,7 @@ export class CustomerAuthService {
   login(credentials: CustomerLoginRequest): Observable<CustomerAuthResponse> {
     return this.http.post<CustomerAuthResponse>(`${environment.apiUrl}/customer-auth/login`, credentials).pipe(
       tap(response => {
-        this.setAuthData(response.token, response.customer);
+        this.setAuthData(response.token, response.user);
         // Redirection after login
         this.router.navigate(['/my-bookings']); // Redirect customers to their bookings page or home
       })
@@ -134,7 +134,8 @@ export class CustomerAuthService {
    * @returns True if a customer token is present, false otherwise.
    */
   private hasToken(): boolean {
-    return this.cookieService.check(this.TOKEN_KEY);
+    const has = this.cookieService.check(this.TOKEN_KEY);
+    return has;
   }
 
   /**
@@ -147,7 +148,8 @@ export class CustomerAuthService {
     // Ensure the string is not empty and not literally 'null' before parsing
     if (profileString && profileString.length > 0 && profileString !== 'null') {
       try {
-        return JSON.parse(profileString);
+        const profile = JSON.parse(profileString);
+        return profile;
       } catch (e) {
         // Keep console.error for critical parsing issues during development
         console.error('Error parsing customer profile from cookie:', e); 

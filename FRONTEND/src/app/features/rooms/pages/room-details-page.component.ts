@@ -1,24 +1,25 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
-import { ImagesInputComponent } from '../../../shared/components/images-input-component';
-import { DynamicAccordionPanelComponent } from '../../../shared/components/dynamic-accordion-panel-component';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ButtonComponent } from '../../../shared/components/button-component';
 import {
   DialogService,
-  DynamicDialogRef,
   DynamicDialogModule,
+  DynamicDialogRef,
 } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import {
-  Room,
-  RoomService,
-  AMENITIES,
-} from '../../../core/services/room-service';
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environments';
+import {
+  AMENITIES,
+  Room,
+  RoomService,
+} from '../../../core/services/room-service';
+import { ButtonComponent } from '../../../shared/components/button-component';
+import { DynamicAccordionPanelComponent } from '../../../shared/components/dynamic-accordion-panel-component';
+import { ImagesInputComponent } from '../../../shared/components/images-input-component';
 import { CheckAvailabilityDialogComponent } from '../components/check-availability-dialog.component';
 
 interface Category {
@@ -35,6 +36,8 @@ interface Tag {
   selector: 'app-room-detail',
   standalone: true,
   imports: [
+    CommonModule,
+    DatePipe,
     AccordionModule,
     ImagesInputComponent,
     DynamicAccordionPanelComponent,
@@ -42,7 +45,6 @@ interface Tag {
     ButtonComponent,
     DynamicDialogModule,
     ToastModule,
-    CheckAvailabilityDialogComponent,
   ],
   providers: [DialogService, MessageService],
   templateUrl: './room-details-page-component.html',
@@ -56,6 +58,8 @@ export class RoomDetailsPageComponents implements OnInit {
   isLoading = signal(true);
   roomData = signal<Room | null>(null);
   activePanel = signal<string[] | number>(['0']);
+  selectedCheckInDate = signal<string | null>(null);
+  selectedCheckOutDate = signal<string | null>(null);
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -129,6 +133,9 @@ export class RoomDetailsPageComponents implements OnInit {
     this.dialogRef.onClose.subscribe((result) => {
       if (result && result.available) {
         const bookingDetails = result.bookingDetails;
+        this.selectedCheckInDate.set(this.formatDate(new Date(bookingDetails.checkInDate)));
+        this.selectedCheckOutDate.set(this.formatDate(new Date(bookingDetails.checkOutDate)));
+
         this.router.navigate(['/reservation'], {
           queryParams: {
             roomId: currentRoom.id,

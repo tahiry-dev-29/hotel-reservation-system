@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DynamicTableComponent, TableColumn } from "../../../shared/components/dynamic-table-component";
@@ -8,7 +8,6 @@ import { DynamicTableComponent, TableColumn } from "../../../shared/components/d
   selector: 'app-employee-list-page-components',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ButtonModule,
     DynamicTableComponent

@@ -1,6 +1,6 @@
 // src/app/shared/components/room-image-gallery-dialog-component.ts
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common'; // For ngFor, ngIf
+ // For ngFor, ngIf
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ImageModule } from 'primeng/image'; // For p-image
 import { environment } from '../../../environments/environments';
@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environments';
 @Component({
   selector: 'app-room-image-gallery-dialog',
   standalone: true,
-  imports: [CommonModule, ImageModule], // CommonModule for structural directives, ImageModule for p-image
+  imports: [ImageModule], // CommonModule for structural directives, ImageModule for p-image
   template: `
     <div class="p-4 bg-surface-ground">
       <h3 class="text-xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">Room Images</h3>

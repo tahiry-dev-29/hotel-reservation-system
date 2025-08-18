@@ -25,7 +25,7 @@ import { CardModule } from 'primeng/card';
 
 // Custom Components
 import { SearchBarComponent } from './search-bar.component';
-import { CommonModule } from '@angular/common'; // For ngFor, ngIf in template
+ // For ngFor, ngIf in template
 
 export interface TableColumn {
   field: string;
@@ -71,9 +71,8 @@ export interface TableColumn {
     ToolbarModule,
     TooltipModule,
     CardModule,
-    SearchBarComponent,
-    CommonModule // Required for @for, @if, etc.
-  ],
+    SearchBarComponent
+],
   templateUrl: './dynamic-table-component.html',
   styles: ``,
 })
